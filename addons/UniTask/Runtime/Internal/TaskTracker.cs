@@ -87,10 +87,10 @@ namespace Cysharp.Threading.Tasks
 #endif
         }
 
-        [Conditional("UNITY_EDITOR")]
+        [Conditional("TOOLS")]
         public static void RemoveTracking(IUniTaskSource task)
         {
-#if UNITY_EDITOR
+#if TOOLS
             dirty = true;
             if (!EditorEnableState.EnableTracking) return;
             var success = tracking.TryRemove(task);

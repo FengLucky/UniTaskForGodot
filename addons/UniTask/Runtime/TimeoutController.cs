@@ -30,7 +30,7 @@ namespace Cysharp.Threading.Tasks
         readonly PlayerLoopTiming delayTiming;
         readonly CancellationTokenSource originalLinkCancellationTokenSource;
 
-        public TimeoutController(DelayType delayType = DelayType.DeltaTime, PlayerLoopTiming delayTiming = PlayerLoopTiming.Update)
+        public TimeoutController(DelayType delayType = DelayType.DeltaTime, PlayerLoopTiming delayTiming = PlayerLoopTiming.Process)
         {
             this.timeoutSource = new CancellationTokenSource();
             this.originalLinkCancellationTokenSource = null;
@@ -39,7 +39,7 @@ namespace Cysharp.Threading.Tasks
             this.delayTiming = delayTiming;
         }
 
-        public TimeoutController(CancellationTokenSource linkCancellationTokenSource, DelayType delayType = DelayType.DeltaTime, PlayerLoopTiming delayTiming = PlayerLoopTiming.Update)
+        public TimeoutController(CancellationTokenSource linkCancellationTokenSource, DelayType delayType = DelayType.DeltaTime, PlayerLoopTiming delayTiming = PlayerLoopTiming.Process)
         {
             this.timeoutSource = new CancellationTokenSource();
             this.originalLinkCancellationTokenSource = linkCancellationTokenSource;

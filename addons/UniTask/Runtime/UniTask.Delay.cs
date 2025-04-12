@@ -5,7 +5,7 @@ using System;
 using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using UnityEngine;
+using Godot;
 
 namespace Cysharp.Threading.Tasks
 {
@@ -24,7 +24,7 @@ namespace Cysharp.Threading.Tasks
         public static YieldAwaitable Yield()
         {
             // optimized for single continuation
-            return new YieldAwaitable(PlayerLoopTiming.Update);
+            return new YieldAwaitable(PlayerLoopTiming.Process);
         }
 
         public static YieldAwaitable Yield(PlayerLoopTiming timing)
@@ -35,7 +35,7 @@ namespace Cysharp.Threading.Tasks
 
         public static UniTask Yield(CancellationToken cancellationToken, bool cancelImmediately = false)
         {
-            return new UniTask(YieldPromise.Create(PlayerLoopTiming.Update, cancellationToken, cancelImmediately, out var token), token);
+            return new UniTask(YieldPromise.Create(PlayerLoopTiming.Process, cancellationToken, cancelImmediately, out var token), token);
         }
 
         public static UniTask Yield(PlayerLoopTiming timing, CancellationToken cancellationToken, bool cancelImmediately = false)
@@ -48,7 +48,7 @@ namespace Cysharp.Threading.Tasks
         /// </summary>
         public static UniTask NextFrame()
         {
-            return new UniTask(NextFramePromise.Create(PlayerLoopTiming.Update, CancellationToken.None, false, out var token), token);
+            return new UniTask(NextFramePromise.Create(PlayerLoopTiming.Process, CancellationToken.None, false, out var token), token);
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Cysharp.Threading.Tasks
         /// </summary>
         public static UniTask NextFrame(CancellationToken cancellationToken, bool cancelImmediately = false)
         {
-            return new UniTask(NextFramePromise.Create(PlayerLoopTiming.Update, cancellationToken, cancelImmediately, out var token), token);
+            return new UniTask(NextFramePromise.Create(PlayerLoopTiming.Process, cancellationToken, cancelImmediately, out var token), token);
         }
 
         /// <summary>
@@ -124,17 +124,17 @@ namespace Cysharp.Threading.Tasks
             return UniTask.Yield(PlayerLoopTiming.LastFixedUpdate, cancellationToken, cancelImmediately);
         }
 
-		public static UniTask WaitForSeconds(float duration, bool ignoreTimeScale = false, PlayerLoopTiming delayTiming = PlayerLoopTiming.Update, CancellationToken cancellationToken = default(CancellationToken), bool cancelImmediately = false)
+		public static UniTask WaitForSeconds(float duration, bool ignoreTimeScale = false, PlayerLoopTiming delayTiming = PlayerLoopTiming.Process, CancellationToken cancellationToken = default(CancellationToken), bool cancelImmediately = false)
 		{
 			return Delay(Mathf.RoundToInt(1000 * duration), ignoreTimeScale, delayTiming, cancellationToken, cancelImmediately);
 		}
 
-		public static UniTask WaitForSeconds(int duration, bool ignoreTimeScale = false, PlayerLoopTiming delayTiming = PlayerLoopTiming.Update, CancellationToken cancellationToken = default(CancellationToken), bool cancelImmediately = false)
+		public static UniTask WaitForSeconds(int duration, bool ignoreTimeScale = false, PlayerLoopTiming delayTiming = PlayerLoopTiming.Process, CancellationToken cancellationToken = default(CancellationToken), bool cancelImmediately = false)
 		{
 			return Delay(1000 * duration, ignoreTimeScale, delayTiming, cancellationToken, cancelImmediately);
 		}
 
-		public static UniTask DelayFrame(int delayFrameCount, PlayerLoopTiming delayTiming = PlayerLoopTiming.Update, CancellationToken cancellationToken = default(CancellationToken), bool cancelImmediately = false)
+		public static UniTask DelayFrame(int delayFrameCount, PlayerLoopTiming delayTiming = PlayerLoopTiming.Process, CancellationToken cancellationToken = default(CancellationToken), bool cancelImmediately = false)
         {
             if (delayFrameCount < 0)
             {
@@ -144,7 +144,7 @@ namespace Cysharp.Threading.Tasks
             return new UniTask(DelayFramePromise.Create(delayFrameCount, delayTiming, cancellationToken, cancelImmediately, out var token), token);
         }
 
-        public static UniTask Delay(int millisecondsDelay, bool ignoreTimeScale = false, PlayerLoopTiming delayTiming = PlayerLoopTiming.Update, CancellationToken cancellationToken = default(CancellationToken), bool cancelImmediately = false)
+        public static UniTask Delay(int millisecondsDelay, bool ignoreTimeScale = false, PlayerLoopTiming delayTiming = PlayerLoopTiming.Process, CancellationToken cancellationToken = default(CancellationToken), bool cancelImmediately = false)
         {
             var delayTimeSpan = TimeSpan.FromMilliseconds(millisecondsDelay);
             return Delay(delayTimeSpan, ignoreTimeScale, delayTiming, cancellationToken, cancelImmediately);

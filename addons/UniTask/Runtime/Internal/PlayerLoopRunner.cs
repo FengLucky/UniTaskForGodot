@@ -1,257 +1,190 @@
-﻿
-using System;
-using UnityEngine;
+﻿using System;
+using Godot;
 
-namespace Cysharp.Threading.Tasks.Internal
+namespace Cysharp.Threading.Tasks.Internal;
+internal sealed class PlayerLoopRunner
 {
-    internal sealed class PlayerLoopRunner
+    const int InitialSize = 16;
+
+    readonly PlayerLoopTiming timing;
+    readonly object runningAndQueueLock = new object();
+    readonly object arrayLock = new object();
+    readonly Action<Exception> unhandledExceptionCallback;
+
+    int tail = 0;
+    bool running = false;
+    IPlayerLoopItem[] loopItems = new IPlayerLoopItem[InitialSize];
+    MinimumQueue<IPlayerLoopItem> waitQueue = new (InitialSize);
+    
+    public PlayerLoopRunner(PlayerLoopTiming timing)
     {
-        const int InitialSize = 16;
+        unhandledExceptionCallback = ex => GD.PushError(ex);
+        this.timing = timing;
+    }
 
-        readonly PlayerLoopTiming timing;
-        readonly object runningAndQueueLock = new object();
-        readonly object arrayLock = new object();
-        readonly Action<Exception> unhandledExceptionCallback;
-
-        int tail = 0;
-        bool running = false;
-        IPlayerLoopItem[] loopItems = new IPlayerLoopItem[InitialSize];
-        MinimumQueue<IPlayerLoopItem> waitQueue = new MinimumQueue<IPlayerLoopItem>(InitialSize);
-
-
-
-        public PlayerLoopRunner(PlayerLoopTiming timing)
+    public void AddAction(IPlayerLoopItem item)
+    {
+        lock (runningAndQueueLock)
         {
-            this.unhandledExceptionCallback = ex => Debug.LogException(ex);
-            this.timing = timing;
-        }
-
-        public void AddAction(IPlayerLoopItem item)
-        {
-            lock (runningAndQueueLock)
+            if (running)
             {
-                if (running)
-                {
-                    waitQueue.Enqueue(item);
-                    return;
-                }
-            }
-
-            lock (arrayLock)
-            {
-                // Ensure Capacity
-                if (loopItems.Length == tail)
-                {
-                    Array.Resize(ref loopItems, checked(tail * 2));
-                }
-                loopItems[tail++] = item;
+                waitQueue.Enqueue(item);
+                return;
             }
         }
 
-        public int Clear()
+        lock (arrayLock)
         {
-            lock (arrayLock)
+            // Ensure Capacity
+            if (loopItems.Length == tail)
             {
-                var rest = 0;
+                Array.Resize(ref loopItems, checked(tail * 2));
+            }
+            loopItems[tail++] = item;
+        }
+    }
 
-                for (var index = 0; index < loopItems.Length; index++)
+    public int Clear()
+    {
+        lock (arrayLock)
+        {
+            var rest = 0;
+
+            for (var index = 0; index < loopItems.Length; index++)
+            {
+                if (loopItems[index] != null)
                 {
-                    if (loopItems[index] != null)
-                    {
-                        rest++;
-                    }
-
-                    loopItems[index] = null;
+                    rest++;
                 }
 
-                tail = 0;
-                return rest;
+                loopItems[index] = null;
             }
-        }
 
-        // delegate entrypoint.
-        public void Run()
-        {
-            // for debugging, create named stacktrace.
+            tail = 0;
+            return rest;
+        }
+    }
+
+    // delegate entrypoint.
+    public void Run()
+    {
+        // for debugging, create named stacktrace.
 #if DEBUG
-            switch (timing)
-            {
-                case PlayerLoopTiming.Initialization:
-                    Initialization();
-                    break;
-                case PlayerLoopTiming.LastInitialization:
-                    LastInitialization();
-                    break;
-                case PlayerLoopTiming.EarlyUpdate:
-                    EarlyUpdate();
-                    break;
-                case PlayerLoopTiming.LastEarlyUpdate:
-                    LastEarlyUpdate();
-                    break;
-                case PlayerLoopTiming.FixedUpdate:
-                    FixedUpdate();
-                    break;
-                case PlayerLoopTiming.LastFixedUpdate:
-                    LastFixedUpdate();
-                    break;
-                case PlayerLoopTiming.PreUpdate:
-                    PreUpdate();
-                    break;
-                case PlayerLoopTiming.LastPreUpdate:
-                    LastPreUpdate();
-                    break;
-                case PlayerLoopTiming.Update:
-                    Update();
-                    break;
-                case PlayerLoopTiming.LastUpdate:
-                    LastUpdate();
-                    break;
-                case PlayerLoopTiming.PreLateUpdate:
-                    PreLateUpdate();
-                    break;
-                case PlayerLoopTiming.LastPreLateUpdate:
-                    LastPreLateUpdate();
-                    break;
-                case PlayerLoopTiming.PostLateUpdate:
-                    PostLateUpdate();
-                    break;
-                case PlayerLoopTiming.LastPostLateUpdate:
-                    LastPostLateUpdate();
-                    break;
-#if UNITY_2020_2_OR_NEWER
-                case PlayerLoopTiming.TimeUpdate:
-                    TimeUpdate();
-                    break;
-                case PlayerLoopTiming.LastTimeUpdate:
-                    LastTimeUpdate();
-                    break;
-#endif
-                default:
-                    break;
-            }
+        switch (timing)
+        {
+            case PlayerLoopTiming.Process:
+                Process();
+                break;
+            case PlayerLoopTiming.PhysicsProcess:
+                PhysicsProcess();
+                break;
+        }
 #else
-            RunCore();
+        RunCore();
 #endif
+    }
+
+    private void Process() => RunCore();
+    private void PhysicsProcess() => RunCore();
+
+    [System.Diagnostics.DebuggerHidden]
+    void RunCore()
+    {
+        lock (runningAndQueueLock)
+        {
+            running = true;
         }
 
-        void Initialization() => RunCore();
-        void LastInitialization() => RunCore();
-        void EarlyUpdate() => RunCore();
-        void LastEarlyUpdate() => RunCore();
-        void FixedUpdate() => RunCore();
-        void LastFixedUpdate() => RunCore();
-        void PreUpdate() => RunCore();
-        void LastPreUpdate() => RunCore();
-        void Update() => RunCore();
-        void LastUpdate() => RunCore();
-        void PreLateUpdate() => RunCore();
-        void LastPreLateUpdate() => RunCore();
-        void PostLateUpdate() => RunCore();
-        void LastPostLateUpdate() => RunCore();
-#if UNITY_2020_2_OR_NEWER
-        void TimeUpdate() => RunCore();
-        void LastTimeUpdate() => RunCore();
-#endif
-
-        [System.Diagnostics.DebuggerHidden]
-        void RunCore()
+        lock (arrayLock)
         {
-            lock (runningAndQueueLock)
-            {
-                running = true;
-            }
+            var j = tail - 1;
 
-            lock (arrayLock)
+            for (int i = 0; i < loopItems.Length; i++)
             {
-                var j = tail - 1;
-
-                for (int i = 0; i < loopItems.Length; i++)
+                var action = loopItems[i];
+                if (action != null)
                 {
-                    var action = loopItems[i];
-                    if (action != null)
+                    try
+                    {
+                        if (!action.MoveNext())
+                        {
+                            loopItems[i] = null;
+                        }
+                        else
+                        {
+                            continue; // next i 
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        loopItems[i] = null;
+                        try
+                        {
+                            unhandledExceptionCallback(ex);
+                        }
+                        catch { }
+                    }
+                }
+
+                // find null, loop from tail
+                while (i < j)
+                {
+                    var fromTail = loopItems[j];
+                    if (fromTail != null)
                     {
                         try
                         {
-                            if (!action.MoveNext())
+                            if (!fromTail.MoveNext())
                             {
-                                loopItems[i] = null;
+                                loopItems[j] = null;
+                                j--;
+                                continue; // next j
                             }
                             else
                             {
-                                continue; // next i 
+                                // swap
+                                loopItems[i] = fromTail;
+                                loopItems[j] = null;
+                                j--;
+                                goto NEXT_LOOP; // next i
                             }
                         }
                         catch (Exception ex)
                         {
-                            loopItems[i] = null;
+                            loopItems[j] = null;
+                            j--;
                             try
                             {
                                 unhandledExceptionCallback(ex);
                             }
                             catch { }
+                            continue; // next j
                         }
                     }
-
-                    // find null, loop from tail
-                    while (i < j)
+                    else
                     {
-                        var fromTail = loopItems[j];
-                        if (fromTail != null)
-                        {
-                            try
-                            {
-                                if (!fromTail.MoveNext())
-                                {
-                                    loopItems[j] = null;
-                                    j--;
-                                    continue; // next j
-                                }
-                                else
-                                {
-                                    // swap
-                                    loopItems[i] = fromTail;
-                                    loopItems[j] = null;
-                                    j--;
-                                    goto NEXT_LOOP; // next i
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                loopItems[j] = null;
-                                j--;
-                                try
-                                {
-                                    unhandledExceptionCallback(ex);
-                                }
-                                catch { }
-                                continue; // next j
-                            }
-                        }
-                        else
-                        {
-                            j--;
-                        }
+                        j--;
                     }
-
-                    tail = i; // loop end
-                    break; // LOOP END
-
-                    NEXT_LOOP:
-                    continue;
                 }
 
+                tail = i; // loop end
+                break; // LOOP END
 
-                lock (runningAndQueueLock)
+                NEXT_LOOP:
+                continue;
+            }
+
+
+            lock (runningAndQueueLock)
+            {
+                running = false;
+                while (waitQueue.Count != 0)
                 {
-                    running = false;
-                    while (waitQueue.Count != 0)
+                    if (loopItems.Length == tail)
                     {
-                        if (loopItems.Length == tail)
-                        {
-                            Array.Resize(ref loopItems, checked(tail * 2));
-                        }
-                        loopItems[tail++] = waitQueue.Dequeue();
+                        Array.Resize(ref loopItems, checked(tail * 2));
                     }
+                    loopItems[tail++] = waitQueue.Dequeue();
                 }
             }
         }

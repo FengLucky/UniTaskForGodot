@@ -36,6 +36,11 @@ namespace Cysharp.Threading.Tasks
         readonly IUniTaskSource source;
         readonly short token;
 
+        static UniTask()
+        {
+            PlayerLoopHelper.Init();
+        }
+
         [DebuggerHidden]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public UniTask(IUniTaskSource source, short token)

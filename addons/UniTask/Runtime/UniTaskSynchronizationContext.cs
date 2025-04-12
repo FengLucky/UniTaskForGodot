@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Godot;
 
 namespace Cysharp.Threading.Tasks
 {
@@ -150,7 +151,7 @@ namespace Cysharp.Threading.Tasks
                 }
                 catch (Exception ex)
                 {
-                    UnityEngine.Debug.LogException(ex);
+                    GD.PushError(ex);
                 }
             }
         }
