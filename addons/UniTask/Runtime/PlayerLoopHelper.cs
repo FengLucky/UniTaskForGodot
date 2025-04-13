@@ -64,14 +64,14 @@ namespace Cysharp.Threading.Tasks
             switch (playerLoopTiming)
             {
                 case PlayerLoopTiming.Process:
-                    Engine.Singleton.GetMainLoop().Connect("process_frame", Callable.From(() =>
+                    Engine.Singleton.GetMainLoop().Connect(SceneTree.SignalName.ProcessFrame, Callable.From(() =>
                     {
                         yielders[(int)playerLoopTiming].Run();
                         runners[(int)playerLoopTiming].Run();
                     }));
                     break;
                 case PlayerLoopTiming.PhysicsProcess:
-                    Engine.Singleton.GetMainLoop().Connect("physics_frame", Callable.From(() =>
+                    Engine.Singleton.GetMainLoop().Connect(SceneTree.SignalName.PhysicsFrame, Callable.From(() =>
                     {
                         yielders[(int)playerLoopTiming].Run();
                         runners[(int)playerLoopTiming].Run();

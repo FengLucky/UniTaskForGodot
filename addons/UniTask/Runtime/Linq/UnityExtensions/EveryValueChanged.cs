@@ -2,20 +2,19 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Godot;
 
 namespace Cysharp.Threading.Tasks.Linq
 {
     public static partial class UniTaskAsyncEnumerable
     {
-        public static IUniTaskAsyncEnumerable<TProperty> EveryValueChanged<TTarget, TProperty>(TTarget target, Func<TTarget, TProperty> propertySelector, PlayerLoopTiming monitorTiming = PlayerLoopTiming.Update, IEqualityComparer<TProperty> equalityComparer = null, bool cancelImmediately = false)
+        public static IUniTaskAsyncEnumerable<TProperty> EveryValueChanged<TTarget, TProperty>(TTarget target, Func<TTarget, TProperty> propertySelector, PlayerLoopTiming monitorTiming = PlayerLoopTiming.Process, IEqualityComparer<TProperty> equalityComparer = null, bool cancelImmediately = false)
             where TTarget : class
         {
-            var unityObject = target as UnityEngine.Object;
-            var isUnityObject = target is UnityEngine.Object; // don't use (unityObject == null)
-
+            var isUnityObject = target is GodotObject;
             if (isUnityObject)
             {
-                return new EveryValueChangedUnityObject<TTarget, TProperty>(target, propertySelector, equalityComparer ?? UnityEqualityComparer.GetDefault<TProperty>(), monitorTiming, cancelImmediately);
+                return new EveryValueChangedGodotObject<TTarget, TProperty>(target, propertySelector, equalityComparer ?? UnityEqualityComparer.GetDefault<TProperty>(), monitorTiming, cancelImmediately);
             }
             else
             {
@@ -24,7 +23,7 @@ namespace Cysharp.Threading.Tasks.Linq
         }
     }
 
-    internal sealed class EveryValueChangedUnityObject<TTarget, TProperty> : IUniTaskAsyncEnumerable<TProperty>
+    internal sealed class EveryValueChangedGodotObject<TTarget, TProperty> : IUniTaskAsyncEnumerable<TProperty>
     {
         readonly TTarget target;
         readonly Func<TTarget, TProperty> propertySelector;
@@ -32,7 +31,7 @@ namespace Cysharp.Threading.Tasks.Linq
         readonly PlayerLoopTiming monitorTiming;
         readonly bool cancelImmediately;
 
-        public EveryValueChangedUnityObject(TTarget target, Func<TTarget, TProperty> propertySelector, IEqualityComparer<TProperty> equalityComparer, PlayerLoopTiming monitorTiming, bool cancelImmediately)
+        public EveryValueChangedGodotObject(TTarget target, Func<TTarget, TProperty> propertySelector, IEqualityComparer<TProperty> equalityComparer, PlayerLoopTiming monitorTiming, bool cancelImmediately)
         {
             this.target = target;
             this.propertySelector = propertySelector;
@@ -49,7 +48,7 @@ namespace Cysharp.Threading.Tasks.Linq
         sealed class _EveryValueChanged : MoveNextSource, IUniTaskAsyncEnumerator<TProperty>, IPlayerLoopItem
         {
             readonly TTarget target;
-            readonly UnityEngine.Object targetAsUnityObject;
+            readonly GodotObject targetAsGodotObject;
             readonly IEqualityComparer<TProperty> equalityComparer;
             readonly Func<TTarget, TProperty> propertySelector;
             readonly CancellationToken cancellationToken;
@@ -62,7 +61,7 @@ namespace Cysharp.Threading.Tasks.Linq
             public _EveryValueChanged(TTarget target, Func<TTarget, TProperty> propertySelector, IEqualityComparer<TProperty> equalityComparer, PlayerLoopTiming monitorTiming, CancellationToken cancellationToken, bool cancelImmediately)
             {
                 this.target = target;
-                this.targetAsUnityObject = target as UnityEngine.Object;
+                this.targetAsGodotObject = target as GodotObject;
                 this.propertySelector = propertySelector;
                 this.equalityComparer = equalityComparer;
                 this.cancellationToken = cancellationToken;
@@ -98,7 +97,7 @@ namespace Cysharp.Threading.Tasks.Linq
                 if (first)
                 {
                     first = false;
-                    if (targetAsUnityObject == null)
+                    if (!GodotObject.IsInstanceValid(targetAsGodotObject))
                     {
                         return CompletedTasks.False;
                     }
@@ -122,7 +121,7 @@ namespace Cysharp.Threading.Tasks.Linq
 
             public bool MoveNext()
             {
-                if (disposed || targetAsUnityObject == null) 
+                if (disposed || !GodotObject.IsInstanceValid(targetAsGodotObject)) 
                 {
                     completionSource.TrySetResult(false);
                     DisposeAsync().Forget();

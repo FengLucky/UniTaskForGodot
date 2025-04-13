@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Threading;
 using Cysharp.Threading.Tasks.Internal;
+using Godot;
 
 namespace Cysharp.Threading.Tasks
 {
@@ -38,11 +39,9 @@ namespace Cysharp.Threading.Tasks
         public static UniTask<U> WaitUntilValueChanged<T, U>(T target, Func<T, U> monitorFunction, PlayerLoopTiming monitorTiming = PlayerLoopTiming.Process, IEqualityComparer<U> equalityComparer = null, CancellationToken cancellationToken = default(CancellationToken), bool cancelImmediately = false)
           where T : class
         {
-            var unityObject = target as UnityEngine.Object;
-            var isUnityObject = target is UnityEngine.Object; // don't use (unityObject == null)
-
-            return new UniTask<U>(isUnityObject
-                ? WaitUntilValueChangedUnityObjectPromise<T, U>.Create(target, monitorFunction, equalityComparer, monitorTiming, cancellationToken, cancelImmediately, out var token)
+            var isGodotObject = target is GodotObject; 
+            return new UniTask<U>(isGodotObject
+                ? WaitUntilValueChangedGodotObjectPromise<T, U>.Create(target, monitorFunction, equalityComparer, monitorTiming, cancellationToken, cancelImmediately, out var token)
                 : WaitUntilValueChangedStandardObjectPromise<T, U>.Create(target, monitorFunction, equalityComparer, monitorTiming, cancellationToken, cancelImmediately, out token), token);
         }
 
@@ -666,19 +665,19 @@ namespace Cysharp.Threading.Tasks
         }
 
         // where T : UnityEngine.Object, can not add constraint
-        sealed class WaitUntilValueChangedUnityObjectPromise<T, U> : IUniTaskSource<U>, IPlayerLoopItem, ITaskPoolNode<WaitUntilValueChangedUnityObjectPromise<T, U>>
+        sealed class WaitUntilValueChangedGodotObjectPromise<T, U> : IUniTaskSource<U>, IPlayerLoopItem, ITaskPoolNode<WaitUntilValueChangedGodotObjectPromise<T, U>>
         {
-            static TaskPool<WaitUntilValueChangedUnityObjectPromise<T, U>> pool;
-            WaitUntilValueChangedUnityObjectPromise<T, U> nextNode;
-            public ref WaitUntilValueChangedUnityObjectPromise<T, U> NextNode => ref nextNode;
+            static TaskPool<WaitUntilValueChangedGodotObjectPromise<T, U>> pool;
+            WaitUntilValueChangedGodotObjectPromise<T, U> nextNode;
+            public ref WaitUntilValueChangedGodotObjectPromise<T, U> NextNode => ref nextNode;
 
-            static WaitUntilValueChangedUnityObjectPromise()
+            static WaitUntilValueChangedGodotObjectPromise()
             {
-                TaskPool.RegisterSizeGetter(typeof(WaitUntilValueChangedUnityObjectPromise<T, U>), () => pool.Size);
+                TaskPool.RegisterSizeGetter(typeof(WaitUntilValueChangedGodotObjectPromise<T, U>), () => pool.Size);
             }
 
             T target;
-            UnityEngine.Object targetAsUnityObject;
+            GodotObject targetAsGodotObject;
             U currentValue;
             Func<T, U> monitorFunction;
             IEqualityComparer<U> equalityComparer;
@@ -688,7 +687,7 @@ namespace Cysharp.Threading.Tasks
 
             UniTaskCompletionSourceCore<U> core;
 
-            WaitUntilValueChangedUnityObjectPromise()
+            WaitUntilValueChangedGodotObjectPromise()
             {
             }
 
@@ -701,11 +700,11 @@ namespace Cysharp.Threading.Tasks
 
                 if (!pool.TryPop(out var result))
                 {
-                    result = new WaitUntilValueChangedUnityObjectPromise<T, U>();
+                    result = new WaitUntilValueChangedGodotObjectPromise<T, U>();
                 }
 
                 result.target = target;
-                result.targetAsUnityObject = target as UnityEngine.Object;
+                result.targetAsGodotObject = target as GodotObject;
                 result.monitorFunction = monitorFunction;
                 result.currentValue = monitorFunction(target);
                 result.equalityComparer = equalityComparer ?? UnityEqualityComparer.GetDefault<U>();
@@ -716,7 +715,7 @@ namespace Cysharp.Threading.Tasks
                 {
                     result.cancellationTokenRegistration = cancellationToken.RegisterWithoutCaptureExecutionContext(state =>
                     {
-                        var promise = (WaitUntilValueChangedUnityObjectPromise<T, U>)state;
+                        var promise = (WaitUntilValueChangedGodotObjectPromise<T, U>)state;
                         promise.core.TrySetCanceled(promise.cancellationToken);
                     }, result);
                 }
@@ -770,7 +769,7 @@ namespace Cysharp.Threading.Tasks
 
             public bool MoveNext()
             {
-                if (cancellationToken.IsCancellationRequested || targetAsUnityObject == null) // destroyed = cancel.
+                if (cancellationToken.IsCancellationRequested || !GodotObject.IsInstanceValid(targetAsGodotObject)) // destroyed = cancel.
                 {
                     core.TrySetCanceled(cancellationToken);
                     return false;

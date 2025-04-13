@@ -4,6 +4,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks.Triggers;
 using System;
 using Cysharp.Threading.Tasks.Internal;
+using Godot;
 
 namespace Cysharp.Threading.Tasks
 {
@@ -28,16 +29,10 @@ namespace Cysharp.Threading.Tasks
             return PlayerLoopTimer.StartNew(delayTimeSpan, false, delayType, delayTiming, cts.Token, CancelCancellationTokenSourceStateDelegate, cts);
         }
 
-        public static void RegisterRaiseCancelOnDestroy(this CancellationTokenSource cts, Component component)
-        {
-            RegisterRaiseCancelOnDestroy(cts, component.gameObject);
-        }
-
-        public static void RegisterRaiseCancelOnDestroy(this CancellationTokenSource cts, GameObject gameObject)
+        public static void RegisterRaiseCancelOnExitTree(this CancellationTokenSource cts, Node node)
         {
             var trigger = gameObject.GetAsyncDestroyTrigger();
             trigger.CancellationToken.RegisterWithoutCaptureExecutionContext(CancelCancellationTokenSourceStateDelegate, cts);
         }
     }
 }
-
