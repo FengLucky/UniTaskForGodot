@@ -2,9 +2,6 @@
 .godot/
 /android/
 .idea
-project.godot
-UniTask.csproj
-UniTask.sln
 
 # User-specific files
 *.suo
