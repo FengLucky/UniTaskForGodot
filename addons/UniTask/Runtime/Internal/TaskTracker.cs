@@ -13,7 +13,7 @@ namespace Cysharp.Threading.Tasks
 
     public static class TaskTracker
     {
-#if UNITY_EDITOR
+#if TOOLS
 
         static int trackingId = 0;
 
@@ -30,7 +30,7 @@ namespace Cysharp.Threading.Tasks
                 set
                 {
                     enableAutoReload = value;
-                    UnityEditor.EditorPrefs.SetBool(EnableAutoReloadKey, value);
+                    //UnityEditor.EditorPrefs.SetBool(EnableAutoReloadKey, value);
                 }
             }
 
@@ -41,7 +41,7 @@ namespace Cysharp.Threading.Tasks
                 set
                 {
                     enableTracking = value;
-                    UnityEditor.EditorPrefs.SetBool(EnableTrackingKey, value);
+                    //UnityEditor.EditorPrefs.SetBool(EnableTrackingKey, value);
                 }
             }
 
@@ -52,7 +52,7 @@ namespace Cysharp.Threading.Tasks
                 set
                 {
                     enableStackTrace = value;
-                    UnityEditor.EditorPrefs.SetBool(EnableStackTraceKey, value);
+                    //UnityEditor.EditorPrefs.SetBool(EnableStackTraceKey, value);
                 }
             }
         }
@@ -64,10 +64,10 @@ namespace Cysharp.Threading.Tasks
 
         static readonly WeakDictionary<IUniTaskSource, (string formattedType, int trackingId, DateTime addTime, string stackTrace)> tracking = new WeakDictionary<IUniTaskSource, (string formattedType, int trackingId, DateTime addTime, string stackTrace)>();
 
-        [Conditional("UNITY_EDITOR")]
+        [Conditional("TOOLS")]
         public static void TrackActiveTask(IUniTaskSource task, int skipFrame)
         {
-#if UNITY_EDITOR
+#if TOOLS
             dirty = true;
             if (!EditorEnableState.EnableTracking) return;
             var stackTrace = EditorEnableState.EnableStackTrace ? new StackTrace(skipFrame, true).CleanupAsyncStackTrace() : "";

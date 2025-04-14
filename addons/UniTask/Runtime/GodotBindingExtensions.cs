@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace Cysharp.Threading.Tasks
 {
-    public static class UnityBindingExtensions
+    public static class GodotBindingExtensions
     {
 #if !UNITY_2019_1_OR_NEWER || UNITASK_UGUI_SUPPORT
         // <string> -> Text

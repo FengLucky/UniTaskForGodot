@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Godot;
-using Range = Godot.Range;
 
 namespace Cysharp.Threading.Tasks.Internal
 {
@@ -12,7 +11,6 @@ namespace Cysharp.Threading.Tasks.Internal
         public static readonly IEqualityComparer<Vector4> Vector4 = new Vector4EqualityComparer();
         public static readonly IEqualityComparer<Color> Color = new ColorEqualityComparer();
         public static readonly IEqualityComparer<Rect2> Rect = new RectEqualityComparer();
-        public static readonly IEqualityComparer<Range> Range = new RangeEqualityComparer();
         public static readonly IEqualityComparer<Quaternion> Quaternion = new QuaternionEqualityComparer();
 
         static readonly RuntimeTypeHandle vector2Type = typeof(Vector2).TypeHandle;
@@ -20,7 +18,6 @@ namespace Cysharp.Threading.Tasks.Internal
         static readonly RuntimeTypeHandle vector4Type = typeof(Vector4).TypeHandle;
         static readonly RuntimeTypeHandle colorType = typeof(Color).TypeHandle;
         static readonly RuntimeTypeHandle rectType = typeof(Rect2).TypeHandle;
-        static readonly RuntimeTypeHandle rangeType = typeof(Range).TypeHandle;
         static readonly RuntimeTypeHandle quaternionType = typeof(Quaternion).TypeHandle;
         
         public static readonly IEqualityComparer<Vector2I> Vector2Int = new Vector2IntEqualityComparer();
@@ -63,7 +60,6 @@ namespace Cysharp.Threading.Tasks.Internal
             if (t.Equals(vector4Type)) return Vector4;
             if (t.Equals(colorType)) return Color;
             if (t.Equals(rectType)) return Rect;
-            if (t.Equals(rangeType)) return Range;
             if (t.Equals(quaternionType)) return Quaternion;
             if (t.Equals(vector2IntType)) return Vector2Int;
             if (t.Equals(vector3IntType)) return Vector3Int;
@@ -142,66 +138,54 @@ namespace Cysharp.Threading.Tasks.Internal
         {
             public bool Equals(Quaternion self, Quaternion vector)
             {
-                return self.x.Equals(vector.x) && self.y.Equals(vector.y) && self.z.Equals(vector.z) && self.w.Equals(vector.w);
+                return self.X.Equals(vector.X) && self.Y.Equals(vector.Y) && self.Z.Equals(vector.Z) && self.W.Equals(vector.W);
             }
 
             public int GetHashCode(Quaternion obj)
             {
-                return obj.x.GetHashCode() ^ obj.y.GetHashCode() << 2 ^ obj.z.GetHashCode() >> 2 ^ obj.w.GetHashCode() >> 1;
+                return obj.X.GetHashCode() ^ obj.Y.GetHashCode() << 2 ^ obj.Z.GetHashCode() >> 2 ^ obj.W.GetHashCode() >> 1;
             }
         }
 
-        sealed class Vector2IntEqualityComparer : IEqualityComparer<Vector2Int>
+        sealed class Vector2IntEqualityComparer : IEqualityComparer<Vector2I>
         {
-            public bool Equals(Vector2Int self, Vector2Int vector)
+            public bool Equals(Vector2I self, Vector2I vector)
             {
-                return self.x.Equals(vector.x) && self.y.Equals(vector.y);
+                return self.X.Equals(vector.X) && self.Y.Equals(vector.Y);
             }
 
-            public int GetHashCode(Vector2Int obj)
+            public int GetHashCode(Vector2I obj)
             {
-                return obj.x.GetHashCode() ^ obj.y.GetHashCode() << 2;
+                return obj.X.GetHashCode() ^ obj.Y.GetHashCode() << 2;
             }
         }
 
-        sealed class Vector3IntEqualityComparer : IEqualityComparer<Vector3Int>
+        sealed class Vector3IntEqualityComparer : IEqualityComparer<Vector3I>
         {
             public static readonly Vector3IntEqualityComparer Default = new Vector3IntEqualityComparer();
 
-            public bool Equals(Vector3Int self, Vector3Int vector)
+            public bool Equals(Vector3I self, Vector3I vector)
             {
-                return self.x.Equals(vector.x) && self.y.Equals(vector.y) && self.z.Equals(vector.z);
+                return self.X.Equals(vector.X) && self.Y.Equals(vector.Y) && self.Z.Equals(vector.Z);
             }
 
-            public int GetHashCode(Vector3Int obj)
+            public int GetHashCode(Vector3I obj)
             {
-                return obj.x.GetHashCode() ^ obj.y.GetHashCode() << 2 ^ obj.z.GetHashCode() >> 2;
-            }
-        }
-
-        sealed class RangeEqualityComparer : IEqualityComparer<Range>
-        {
-            public bool Equals(Range self, Range vector)
-            {
-                return self.start.Equals(vector.start) && self.length.Equals(vector.length);
-            }
-
-            public int GetHashCode(Range obj)
-            {
-                return obj.start.GetHashCode() ^ obj.length.GetHashCode() << 2;
+                return obj.X.GetHashCode() ^ obj.Y.GetHashCode() << 2 ^ obj.Z.GetHashCode() >> 2;
             }
         }
-
-        sealed class RectIntEqualityComparer : IEqualityComparer<RectInt>
+        
+        sealed class RectIntEqualityComparer : IEqualityComparer<Rect2I>
         {
-            public bool Equals(RectInt self, RectInt other)
+            public bool Equals(Rect2I self, Rect2I other)
             {
-                return self.x.Equals(other.x) && self.width.Equals(other.width) && self.y.Equals(other.y) && self.height.Equals(other.height);
+                return self.Position.X.Equals(other.Position.X) && self.Size.X.Equals(other.Size.X) && 
+                       self.Position.Y.Equals(other.Position.Y) && self.Size.Y.Equals(other.Size.Y);
             }
 
-            public int GetHashCode(RectInt obj)
+            public int GetHashCode(Rect2I obj)
             {
-                return obj.x.GetHashCode() ^ obj.width.GetHashCode() << 2 ^ obj.y.GetHashCode() >> 2 ^ obj.height.GetHashCode() >> 1;
+                return obj.Position.X.GetHashCode() ^ obj.Size.X.GetHashCode() << 2 ^ obj.Position.Y.GetHashCode() >> 2 ^ obj.Size.Y.GetHashCode() >> 1;
             }
         }
     }
