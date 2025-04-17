@@ -1,5 +1,4 @@
 ﻿#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-using System;
 using System.Threading;
 using Godot;
 using Range = Godot.Range;
@@ -38,220 +37,130 @@ namespace Cysharp.Threading.Tasks
             return new GodotSignalHandlerAsyncEnumerable(button,BaseButton.SignalName.Pressed, cancellationToken);
         }
 
-        public static AsyncGodotSignalHandler<bool> GetAsyncToggleChangedEventHandler(this BaseButton button)
+        public static AsyncGodotSignalHandler<bool> GetAsyncSelectChangedEventHandler(this BaseButton button)
         {
             button.ToggleMode = true;
             return new AsyncGodotSignalHandler<bool>(button,BaseButton.SignalName.Toggled, button.GetCancellationTokenOnExitTree(), false);
         }
 
-        public static AsyncGodotSignalHandler<bool> GetAsyncToggleChangedEventHandler(this BaseButton button, CancellationToken cancellationToken)
+        public static AsyncGodotSignalHandler<bool> GetAsyncSelectChangedEventHandler(this BaseButton button, CancellationToken cancellationToken)
         {
             button.ToggleMode = true;
             return new AsyncGodotSignalHandler<bool>(button,BaseButton.SignalName.Toggled, cancellationToken, false);
         }
 
-        public static UniTask<bool> OnToggleChangedAsync(this BaseButton button)
+        public static UniTask<bool> OnSelectChangedAsync(this BaseButton button)
         {
             button.ToggleMode = true;
             return new AsyncGodotSignalHandler<bool>(button,BaseButton.SignalName.Toggled, button.GetCancellationTokenOnExitTree(),true).OnInvokeAsync();
         }
 
-        public static UniTask<bool> OnToggleChangedAsync(this BaseButton button, CancellationToken cancellationToken)
+        public static UniTask<bool> OnSelectChangedAsync(this BaseButton button, CancellationToken cancellationToken)
         {
             button.ToggleMode = true;
             return new AsyncGodotSignalHandler<bool>(button,BaseButton.SignalName.Toggled,  cancellationToken, true).OnInvokeAsync();
         }
 
-        public static IUniTaskAsyncEnumerable<bool> OnToggleChangedAsAsyncEnumerable(this BaseButton button)
+        public static IUniTaskAsyncEnumerable<bool> OnSelectChangedAsAsyncEnumerable(this BaseButton button)
         {
             button.ToggleMode = true;
             return new GodotSignalHandlerAsyncEnumerable<bool>(button,BaseButton.SignalName.Toggled, button.GetCancellationTokenOnExitTree());
         }
 
-        public static IUniTaskAsyncEnumerable<bool> OnToggleChangedAsAsyncEnumerable(this BaseButton button, CancellationToken cancellationToken)
+        public static IUniTaskAsyncEnumerable<bool> OnSelectChangedAsAsyncEnumerable(this BaseButton button, CancellationToken cancellationToken)
         {
             button.ToggleMode = true;
             return new GodotSignalHandlerAsyncEnumerable<bool>(button,BaseButton.SignalName.Toggled, cancellationToken);
         }
 
-        public static IAsyncValueChangedEventHandler<float> GetAsyncToggleChangedEventHandler(this Scrollbar scrollbar)
-        {
-            return new AsyncUnityEventHandler<float>(scrollbar.onValueChanged, scrollbar.GetCancellationTokenOnDestroy(), false);
-        }
-
-        public static IAsyncValueChangedEventHandler<float> GetAsyncToggleChangedEventHandler(this Scrollbar scrollbar, CancellationToken cancellationToken)
-        {
-            return new AsyncUnityEventHandler<float>(scrollbar.onValueChanged, cancellationToken, false);
-        }
-
-        public static UniTask<float> OnToggleChangedAsync(this Scrollbar scrollbar)
-        {
-            return new AsyncUnityEventHandler<float>(scrollbar.onValueChanged, scrollbar.GetCancellationTokenOnDestroy(), true).OnInvokeAsync();
-        }
-
-        public static UniTask<float> OnToggleChangedAsync(this Scrollbar scrollbar, CancellationToken cancellationToken)
-        {
-            return new AsyncUnityEventHandler<float>(scrollbar.onValueChanged, cancellationToken, true).OnInvokeAsync();
-        }
-
-        public static IUniTaskAsyncEnumerable<float> OnToggleChangedAsAsyncEnumerable(this Scrollbar scrollbar)
-        {
-            return new UnityEventHandlerAsyncEnumerable<float>(scrollbar.onValueChanged, scrollbar.GetCancellationTokenOnDestroy());
-        }
-
-        public static IUniTaskAsyncEnumerable<float> OnToggleChangedAsAsyncEnumerable(this Scrollbar scrollbar, CancellationToken cancellationToken)
-        {
-            return new UnityEventHandlerAsyncEnumerable<float>(scrollbar.onValueChanged, cancellationToken);
-        }
-
-        public static IAsyncValueChangedEventHandler<Vector2> GetAsyncToggleChangedEventHandler(this ScrollRect scrollRect)
-        {
-            return new AsyncUnityEventHandler<Vector2>(scrollRect.onValueChanged, scrollRect.GetCancellationTokenOnDestroy(), false);
-        }
-
-        public static IAsyncValueChangedEventHandler<Vector2> GetAsyncToggleChangedEventHandler(this ScrollRect scrollRect, CancellationToken cancellationToken)
-        {
-            return new AsyncUnityEventHandler<Vector2>(scrollRect.onValueChanged, cancellationToken, false);
-        }
-
-        public static UniTask<Vector2> OnToggleChangedAsync(this ScrollRect scrollRect)
-        {
-            return new AsyncUnityEventHandler<Vector2>(scrollRect.onValueChanged, scrollRect.GetCancellationTokenOnDestroy(), true).OnInvokeAsync();
-        }
-
-        public static UniTask<Vector2> OnToggleChangedAsync(this ScrollRect scrollRect, CancellationToken cancellationToken)
-        {
-            return new AsyncUnityEventHandler<Vector2>(scrollRect.onValueChanged, cancellationToken, true).OnInvokeAsync();
-        }
-
-        public static IUniTaskAsyncEnumerable<Vector2> OnToggleChangedAsAsyncEnumerable(this ScrollRect scrollRect)
-        {
-            return new UnityEventHandlerAsyncEnumerable<Vector2>(scrollRect.onValueChanged, scrollRect.GetCancellationTokenOnDestroy());
-        }
-
-        public static IUniTaskAsyncEnumerable<Vector2> OnToggleChangedAsAsyncEnumerable(this ScrollRect scrollRect, CancellationToken cancellationToken)
-        {
-            return new UnityEventHandlerAsyncEnumerable<Vector2>(scrollRect.onValueChanged, cancellationToken);
-        }
-
-        public static AsyncGodotSignalHandler<double> GetAsyncToggleChangedEventHandler(this Range range)
+        public static AsyncGodotSignalHandler<double> GetAsyncSelectChangedEventHandler(this Range range)
         {
             return new AsyncGodotSignalHandler<double>(range,Range.SignalName.ValueChanged, range.GetCancellationTokenOnExitTree(), false);
         }
 
-        public static AsyncGodotSignalHandler<double> GetAsyncToggleChangedEventHandler(this Range range, CancellationToken cancellationToken)
+        public static AsyncGodotSignalHandler<double> GetAsyncSelectChangedEventHandler(this Range range, CancellationToken cancellationToken)
         {
             return new AsyncGodotSignalHandler<double>(range,Range.SignalName.ValueChanged, cancellationToken, false);
         }
 
-        public static UniTask<double> OnToggleChangedAsync(this Range range)
+        public static UniTask<double> OnSelectChangedAsync(this Range range)
         {
             return new AsyncGodotSignalHandler<double>(range,Range.SignalName.ValueChanged, range.GetCancellationTokenOnExitTree(), true).OnInvokeAsync();
         }
 
-        public static UniTask<double> OnToggleChangedAsync(this Range range, CancellationToken cancellationToken)
+        public static UniTask<double> OnSelectChangedAsync(this Range range, CancellationToken cancellationToken)
         {
             return new AsyncGodotSignalHandler<double>(range,Range.SignalName.ValueChanged, cancellationToken, true).OnInvokeAsync();
         }
 
-        public static IUniTaskAsyncEnumerable<double> OnToggleChangedAsAsyncEnumerable(this Range range)
+        public static IUniTaskAsyncEnumerable<double> OnSelectChangedAsAsyncEnumerable(this Range range)
         {
             return new GodotSignalHandlerAsyncEnumerable<double>(range,Range.SignalName.ValueChanged, range.GetCancellationTokenOnExitTree());
         }
 
-        public static IUniTaskAsyncEnumerable<double> OnToggleChangedAsAsyncEnumerable(this Range range, CancellationToken cancellationToken)
+        public static IUniTaskAsyncEnumerable<double> OnSelectChangedAsAsyncEnumerable(this Range range, CancellationToken cancellationToken)
         {
             return new GodotSignalHandlerAsyncEnumerable<double>(range,Range.SignalName.ValueChanged, cancellationToken);
         }
 
-        public static IAsyncEndEditEventHandler<string> GetAsyncEndEditEventHandler(this InputField inputField)
+        public static AsyncGodotSignalHandler GetAsyncTextChangedEventHandler(this TextEdit edit)
         {
-            return new AsyncUnityEventHandler<string>(inputField.onEndEdit, inputField.GetCancellationTokenOnDestroy(), false);
+            return new AsyncGodotSignalHandler(edit,TextEdit.SignalName.TextChanged, edit.GetCancellationTokenOnExitTree(), false);
         }
 
-        public static IAsyncEndEditEventHandler<string> GetAsyncEndEditEventHandler(this InputField inputField, CancellationToken cancellationToken)
+        public static AsyncGodotSignalHandler GetAsyncTextChangedEventHandler(this TextEdit edit, CancellationToken cancellationToken)
         {
-            return new AsyncUnityEventHandler<string>(inputField.onEndEdit, cancellationToken, false);
+            return new AsyncGodotSignalHandler(edit,TextEdit.SignalName.TextChanged, cancellationToken, false);
         }
 
-        public static UniTask<string> OnEndEditAsync(this InputField inputField)
+        public static UniTask OnTextChangedAsync(this TextEdit edit)
         {
-            return new AsyncUnityEventHandler<string>(inputField.onEndEdit, inputField.GetCancellationTokenOnDestroy(), true).OnInvokeAsync();
+            return new AsyncGodotSignalHandler(edit,TextEdit.SignalName.TextChanged, edit.GetCancellationTokenOnExitTree(), true).OnInvokeAsync();
         }
 
-        public static UniTask<string> OnEndEditAsync(this InputField inputField, CancellationToken cancellationToken)
+        public static UniTask OnTextChangedAsync(this TextEdit edit, CancellationToken cancellationToken)
         {
-            return new AsyncUnityEventHandler<string>(inputField.onEndEdit, cancellationToken, true).OnInvokeAsync();
+            return new AsyncGodotSignalHandler(edit,TextEdit.SignalName.TextChanged, cancellationToken, true).OnInvokeAsync();
         }
 
-        public static IUniTaskAsyncEnumerable<string> OnEndEditAsAsyncEnumerable(this InputField inputField)
+        public static IUniTaskAsyncEnumerable<AsyncUnit> OnTextChangedAsAsyncEnumerable(this TextEdit edit)
         {
-            return new UnityEventHandlerAsyncEnumerable<string>(inputField.onEndEdit, inputField.GetCancellationTokenOnDestroy());
+            return new GodotSignalHandlerAsyncEnumerable(edit,TextEdit.SignalName.TextChanged, edit.GetCancellationTokenOnExitTree());
         }
 
-        public static IUniTaskAsyncEnumerable<string> OnEndEditAsAsyncEnumerable(this InputField inputField, CancellationToken cancellationToken)
+        public static IUniTaskAsyncEnumerable<AsyncUnit> OnTextChangedAsAsyncEnumerable(this TextEdit edit, CancellationToken cancellationToken)
         {
-            return new UnityEventHandlerAsyncEnumerable<string>(inputField.onEndEdit, cancellationToken);
+            return new GodotSignalHandlerAsyncEnumerable(edit,TextEdit.SignalName.TextChanged, cancellationToken);
         }
 
-        public static IAsyncValueChangedEventHandler<string> GetAsyncToggleChangedEventHandler(this InputField inputField)
+        public static AsyncGodotSignalHandler<long> GetAsyncSelectChangedEventHandler(this OptionButton optionButton)
         {
-            return new AsyncUnityEventHandler<string>(inputField.onValueChanged, inputField.GetCancellationTokenOnDestroy(), false);
+            return new AsyncGodotSignalHandler<long>(optionButton,OptionButton.SignalName.ItemSelected, optionButton.GetCancellationTokenOnExitTree(), false);
         }
 
-        public static IAsyncValueChangedEventHandler<string> GetAsyncToggleChangedEventHandler(this InputField inputField, CancellationToken cancellationToken)
+        public static AsyncGodotSignalHandler<long> GetAsyncSelectChangedEventHandler(this OptionButton optionButton, CancellationToken cancellationToken)
         {
-            return new AsyncUnityEventHandler<string>(inputField.onValueChanged, cancellationToken, false);
+            return new AsyncGodotSignalHandler<long>(optionButton,OptionButton.SignalName.ItemSelected, cancellationToken, false);
         }
 
-        public static UniTask<string> OnToggleChangedAsync(this InputField inputField)
+        public static UniTask<long> OnSelectChangedAsync(this OptionButton optionButton)
         {
-            return new AsyncUnityEventHandler<string>(inputField.onValueChanged, inputField.GetCancellationTokenOnDestroy(), true).OnInvokeAsync();
+            return new AsyncGodotSignalHandler<long>(optionButton,OptionButton.SignalName.ItemSelected, optionButton.GetCancellationTokenOnExitTree(), true).OnInvokeAsync();
         }
 
-        public static UniTask<string> OnToggleChangedAsync(this InputField inputField, CancellationToken cancellationToken)
+        public static UniTask<long> OnSelectChangedAsync(this OptionButton optionButton, CancellationToken cancellationToken)
         {
-            return new AsyncUnityEventHandler<string>(inputField.onValueChanged, cancellationToken, true).OnInvokeAsync();
+            return new AsyncGodotSignalHandler<long>(optionButton,OptionButton.SignalName.ItemSelected, cancellationToken, true).OnInvokeAsync();
         }
 
-        public static IUniTaskAsyncEnumerable<string> OnToggleChangedAsAsyncEnumerable(this InputField inputField)
+        public static IUniTaskAsyncEnumerable<long> OnSelectChangedAsAsyncEnumerable(this OptionButton optionButton)
         {
-            return new UnityEventHandlerAsyncEnumerable<string>(inputField.onValueChanged, inputField.GetCancellationTokenOnDestroy());
+            return new GodotSignalHandlerAsyncEnumerable<long>(optionButton,OptionButton.SignalName.ItemSelected, optionButton.GetCancellationTokenOnExitTree());
         }
 
-        public static IUniTaskAsyncEnumerable<string> OnToggleChangedAsAsyncEnumerable(this InputField inputField, CancellationToken cancellationToken)
+        public static IUniTaskAsyncEnumerable<long> OnSelectChangedAsAsyncEnumerable(this OptionButton optionButton, CancellationToken cancellationToken)
         {
-            return new UnityEventHandlerAsyncEnumerable<string>(inputField.onValueChanged, cancellationToken);
-        }
-
-        public static IAsyncValueChangedEventHandler<int> GetAsyncToggleChangedEventHandler(this Dropdown dropdown)
-        {
-            return new AsyncUnityEventHandler<int>(dropdown.onValueChanged, dropdown.GetCancellationTokenOnDestroy(), false);
-        }
-
-        public static IAsyncValueChangedEventHandler<int> GetAsyncToggleChangedEventHandler(this Dropdown dropdown, CancellationToken cancellationToken)
-        {
-            return new AsyncUnityEventHandler<int>(dropdown.onValueChanged, cancellationToken, false);
-        }
-
-        public static UniTask<int> OnToggleChangedAsync(this Dropdown dropdown)
-        {
-            return new AsyncUnityEventHandler<int>(dropdown.onValueChanged, dropdown.GetCancellationTokenOnDestroy(), true).OnInvokeAsync();
-        }
-
-        public static UniTask<int> OnToggleChangedAsync(this Dropdown dropdown, CancellationToken cancellationToken)
-        {
-            return new AsyncUnityEventHandler<int>(dropdown.onValueChanged, cancellationToken, true).OnInvokeAsync();
-        }
-
-        public static IUniTaskAsyncEnumerable<int> OnToggleChangedAsAsyncEnumerable(this Dropdown dropdown)
-        {
-            return new UnityEventHandlerAsyncEnumerable<int>(dropdown.onValueChanged, dropdown.GetCancellationTokenOnDestroy());
-        }
-
-        public static IUniTaskAsyncEnumerable<int> OnToggleChangedAsAsyncEnumerable(this Dropdown dropdown, CancellationToken cancellationToken)
-        {
-            return new UnityEventHandlerAsyncEnumerable<int>(dropdown.onValueChanged, cancellationToken);
+            return new GodotSignalHandlerAsyncEnumerable<long>(optionButton,OptionButton.SignalName.ItemSelected, cancellationToken);
         }
     }
 }

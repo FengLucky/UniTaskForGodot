@@ -6,7 +6,7 @@ namespace Cysharp.Threading.Tasks
 {
     public static class GodotBindingExtensions
     {
-        // <string> -> Text
+        // <string> -> Label
 
         public static void BindTo(this IUniTaskAsyncEnumerable<string> source, Label label, bool rebindOnError = true)
         {
@@ -62,7 +62,7 @@ namespace Cysharp.Threading.Tasks
             }
         }
 
-        // <T> -> Text
+        // <T> -> Label
 
         public static void BindTo<T>(this IUniTaskAsyncEnumerable<T> source, Label label, bool rebindOnError = true)
         {
@@ -122,8 +122,126 @@ namespace Cysharp.Threading.Tasks
                 }
             }
         }
+        
+        // <string> -> RichTextLabel
 
-        // <bool> -> Selectable
+        public static void BindTo(this IUniTaskAsyncEnumerable<string> source, RichTextLabel label, bool rebindOnError = true)
+        {
+            BindToCore(source, label, label.GetCancellationTokenOnExitTree(), rebindOnError).Forget();
+        }
+
+        public static void BindTo(this IUniTaskAsyncEnumerable<string> source, RichTextLabel label, CancellationToken cancellationToken, bool rebindOnError = true)
+        {
+            BindToCore(source, label, cancellationToken, rebindOnError).Forget();
+        }
+
+        static async UniTaskVoid BindToCore(IUniTaskAsyncEnumerable<string> source, RichTextLabel label, CancellationToken cancellationToken, bool rebindOnError)
+        {
+            var repeat = false;
+            BIND_AGAIN:
+            var e = source.GetAsyncEnumerator(cancellationToken);
+            try
+            {
+                while (true)
+                {
+                    bool moveNext;
+                    try
+                    {
+                        moveNext = await e.MoveNextAsync();
+                        repeat = false;
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex is OperationCanceledException) return;
+
+                        if (rebindOnError && !repeat)
+                        {
+                            repeat = true;
+                            goto BIND_AGAIN;
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+
+                    if (!moveNext) return;
+
+                    label.Text = e.Current;
+                }
+            }
+            finally
+            {
+                if (e != null)
+                {
+                    await e.DisposeAsync();
+                }
+            }
+        }
+
+        // <T> -> RichTextLabel
+
+        public static void BindTo<T>(this IUniTaskAsyncEnumerable<T> source, RichTextLabel label, bool rebindOnError = true)
+        {
+            BindToCore(source, label, label.GetCancellationTokenOnExitTree(), rebindOnError).Forget();
+        }
+
+        public static void BindTo<T>(this IUniTaskAsyncEnumerable<T> source, RichTextLabel label, CancellationToken cancellationToken, bool rebindOnError = true)
+        {
+            BindToCore(source, label, cancellationToken, rebindOnError).Forget();
+        }
+
+        public static void BindTo<T>(this AsyncReactiveProperty<T> source, RichTextLabel label, bool rebindOnError = true)
+        {
+            BindToCore(source, label, label.GetCancellationTokenOnExitTree(), rebindOnError).Forget();
+        }
+
+        static async UniTaskVoid BindToCore<T>(IUniTaskAsyncEnumerable<T> source, RichTextLabel label, CancellationToken cancellationToken, bool rebindOnError)
+        {
+            var repeat = false;
+            BIND_AGAIN:
+            var e = source.GetAsyncEnumerator(cancellationToken);
+            try
+            {
+                while (true)
+                {
+                    bool moveNext;
+                    try
+                    {
+                        moveNext = await e.MoveNextAsync();
+                        repeat = false;
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex is OperationCanceledException) return;
+
+                        if (rebindOnError && !repeat)
+                        {
+                            repeat = true;
+                            goto BIND_AGAIN;
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+
+                    if (!moveNext) return;
+
+                    label.Text = e.Current.ToString();
+                }
+            }
+            finally
+            {
+                if (e != null)
+                {
+                    await e.DisposeAsync();
+                }
+            }
+        }
+        
+
+        // <bool> -> BaseButton
 
         public static void BindTo(this IUniTaskAsyncEnumerable<bool> source, BaseButton button, bool rebindOnError = true)
         {
