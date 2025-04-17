@@ -189,7 +189,7 @@ public class AsyncGodotSignalHandler : IUniTaskSource, IDisposable
             isDisposed = true;
             TaskTracker.RemoveTracking(this);
             registration.Dispose();
-            if (signalName != null && obj != null)
+            if (signalName != null && obj != null && GodotObject.IsInstanceValid(obj))
             {
                 obj.Disconnect(signalName, callable);
             }
@@ -293,7 +293,7 @@ public class AsyncGodotSignalGenericHandler<T> : IUniTaskSource<T>, IDisposable
             isDisposed = true;
             TaskTracker.RemoveTracking(this);
             registration.Dispose();
-            if (signalName != null && obj != null)
+            if (signalName != null && obj != null && GodotObject.IsInstanceValid(obj))
             {
                 obj.Disconnect(signalName,callable);
             }

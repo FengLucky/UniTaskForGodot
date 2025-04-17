@@ -1,9 +1,7 @@
 ﻿#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 using System.Threading;
-using Cysharp.Threading.Tasks.Triggers;
 using System;
-using Cysharp.Threading.Tasks.Internal;
 using Godot;
 
 namespace Cysharp.Threading.Tasks
@@ -31,8 +29,7 @@ namespace Cysharp.Threading.Tasks
 
         public static void RegisterRaiseCancelOnExitTree(this CancellationTokenSource cts, Node node)
         {
-            var trigger = gameObject.GetAsyncDestroyTrigger();
-            trigger.CancellationToken.RegisterWithoutCaptureExecutionContext(CancelCancellationTokenSourceStateDelegate, cts);
+            node.GetCancellationTokenOnExitTree().RegisterWithoutCaptureExecutionContext(CancelCancellationTokenSourceStateDelegate, cts);
         }
     }
 }

@@ -1,9 +1,6 @@
 ﻿#pragma warning disable 0649
 
-#if UNITASK_NETCORE || UNITY_2022_3_OR_NEWER
 #define SUPPORT_VALUETASK
-#endif
-
 #if SUPPORT_VALUETASK
 
 using System;

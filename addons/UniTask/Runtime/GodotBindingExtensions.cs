@@ -1,28 +1,24 @@
 ﻿using System;
 using System.Threading;
-using UnityEngine;
-#if !UNITY_2019_1_OR_NEWER || UNITASK_UGUI_SUPPORT
-using UnityEngine.UI;
-#endif
+using Godot;
 
 namespace Cysharp.Threading.Tasks
 {
     public static class GodotBindingExtensions
     {
-#if !UNITY_2019_1_OR_NEWER || UNITASK_UGUI_SUPPORT
         // <string> -> Text
 
-        public static void BindTo(this IUniTaskAsyncEnumerable<string> source, UnityEngine.UI.Text text, bool rebindOnError = true)
+        public static void BindTo(this IUniTaskAsyncEnumerable<string> source, Label label, bool rebindOnError = true)
         {
-            BindToCore(source, text, text.GetCancellationTokenOnDestroy(), rebindOnError).Forget();
+            BindToCore(source, label, label.GetCancellationTokenOnExitTree(), rebindOnError).Forget();
         }
 
-        public static void BindTo(this IUniTaskAsyncEnumerable<string> source, UnityEngine.UI.Text text, CancellationToken cancellationToken, bool rebindOnError = true)
+        public static void BindTo(this IUniTaskAsyncEnumerable<string> source, Label label, CancellationToken cancellationToken, bool rebindOnError = true)
         {
-            BindToCore(source, text, cancellationToken, rebindOnError).Forget();
+            BindToCore(source, label, cancellationToken, rebindOnError).Forget();
         }
 
-        static async UniTaskVoid BindToCore(IUniTaskAsyncEnumerable<string> source, UnityEngine.UI.Text text, CancellationToken cancellationToken, bool rebindOnError)
+        static async UniTaskVoid BindToCore(IUniTaskAsyncEnumerable<string> source, Label label, CancellationToken cancellationToken, bool rebindOnError)
         {
             var repeat = false;
             BIND_AGAIN:
@@ -54,7 +50,7 @@ namespace Cysharp.Threading.Tasks
 
                     if (!moveNext) return;
 
-                    text.text = e.Current;
+                    label.Text = e.Current;
                 }
             }
             finally
@@ -68,22 +64,22 @@ namespace Cysharp.Threading.Tasks
 
         // <T> -> Text
 
-        public static void BindTo<T>(this IUniTaskAsyncEnumerable<T> source, UnityEngine.UI.Text text, bool rebindOnError = true)
+        public static void BindTo<T>(this IUniTaskAsyncEnumerable<T> source, Label label, bool rebindOnError = true)
         {
-            BindToCore(source, text, text.GetCancellationTokenOnDestroy(), rebindOnError).Forget();
+            BindToCore(source, label, label.GetCancellationTokenOnExitTree(), rebindOnError).Forget();
         }
 
-        public static void BindTo<T>(this IUniTaskAsyncEnumerable<T> source, UnityEngine.UI.Text text, CancellationToken cancellationToken, bool rebindOnError = true)
+        public static void BindTo<T>(this IUniTaskAsyncEnumerable<T> source, Label label, CancellationToken cancellationToken, bool rebindOnError = true)
         {
-            BindToCore(source, text, cancellationToken, rebindOnError).Forget();
+            BindToCore(source, label, cancellationToken, rebindOnError).Forget();
         }
 
-        public static void BindTo<T>(this AsyncReactiveProperty<T> source, UnityEngine.UI.Text text, bool rebindOnError = true)
+        public static void BindTo<T>(this AsyncReactiveProperty<T> source, Label label, bool rebindOnError = true)
         {
-            BindToCore(source, text, text.GetCancellationTokenOnDestroy(), rebindOnError).Forget();
+            BindToCore(source, label, label.GetCancellationTokenOnExitTree(), rebindOnError).Forget();
         }
 
-        static async UniTaskVoid BindToCore<T>(IUniTaskAsyncEnumerable<T> source, UnityEngine.UI.Text text, CancellationToken cancellationToken, bool rebindOnError)
+        static async UniTaskVoid BindToCore<T>(IUniTaskAsyncEnumerable<T> source, Label label, CancellationToken cancellationToken, bool rebindOnError)
         {
             var repeat = false;
             BIND_AGAIN:
@@ -115,7 +111,7 @@ namespace Cysharp.Threading.Tasks
 
                     if (!moveNext) return;
 
-                    text.text = e.Current.ToString();
+                    label.Text = e.Current.ToString();
                 }
             }
             finally
@@ -129,18 +125,19 @@ namespace Cysharp.Threading.Tasks
 
         // <bool> -> Selectable
 
-        public static void BindTo(this IUniTaskAsyncEnumerable<bool> source, Selectable selectable, bool rebindOnError = true)
+        public static void BindTo(this IUniTaskAsyncEnumerable<bool> source, BaseButton button, bool rebindOnError = true)
         {
-            BindToCore(source, selectable, selectable.GetCancellationTokenOnDestroy(), rebindOnError).Forget();
+            BindToCore(source, button, button.GetCancellationTokenOnExitTree(), rebindOnError).Forget();
         }
 
-        public static void BindTo(this IUniTaskAsyncEnumerable<bool> source, Selectable selectable, CancellationToken cancellationToken, bool rebindOnError = true)
+        public static void BindTo(this IUniTaskAsyncEnumerable<bool> source, BaseButton button, CancellationToken cancellationToken, bool rebindOnError = true)
         {
-            BindToCore(source, selectable, cancellationToken, rebindOnError).Forget();
+            BindToCore(source, button, cancellationToken, rebindOnError).Forget();
         }
 
-        static async UniTaskVoid BindToCore(IUniTaskAsyncEnumerable<bool> source, Selectable selectable, CancellationToken cancellationToken, bool rebindOnError)
+        static async UniTaskVoid BindToCore(IUniTaskAsyncEnumerable<bool> source, BaseButton button, CancellationToken cancellationToken, bool rebindOnError)
         {
+            button.ToggleMode = true;
             var repeat = false;
             BIND_AGAIN:
             var e = source.GetAsyncEnumerator(cancellationToken);
@@ -171,8 +168,7 @@ namespace Cysharp.Threading.Tasks
 
                     if (!moveNext) return;
 
-
-                    selectable.interactable = e.Current;
+                    button.ButtonPressed = e.Current;
                 }
             }
             finally
@@ -183,14 +179,13 @@ namespace Cysharp.Threading.Tasks
                 }
             }
         }
-#endif
 
         // <T> -> Action
 
-        public static void BindTo<TSource, TObject>(this IUniTaskAsyncEnumerable<TSource> source, TObject monoBehaviour, Action<TObject, TSource> bindAction, bool rebindOnError = true)
-            where TObject : MonoBehaviour
+        public static void BindTo<TSource, TObject>(this IUniTaskAsyncEnumerable<TSource> source, TObject node, Action<TObject, TSource> bindAction, bool rebindOnError = true)
+            where TObject : Node
         {
-            BindToCore(source, monoBehaviour, bindAction, monoBehaviour.GetCancellationTokenOnDestroy(), rebindOnError).Forget();
+            BindToCore(source, node, bindAction, node.GetCancellationTokenOnExitTree(), rebindOnError).Forget();
         }
 
         public static void BindTo<TSource, TObject>(this IUniTaskAsyncEnumerable<TSource> source, TObject bindTarget, Action<TObject, TSource> bindAction, CancellationToken cancellationToken, bool rebindOnError = true)
