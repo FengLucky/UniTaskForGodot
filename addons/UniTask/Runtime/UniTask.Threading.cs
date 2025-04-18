@@ -10,14 +10,12 @@ namespace Cysharp.Threading.Tasks
 {
     public partial struct UniTask
     {
-#if UNITY_2018_3_OR_NEWER
-
         /// <summary>
         /// If running on mainthread, do nothing. Otherwise, same as UniTask.Yield(PlayerLoopTiming.Update).
         /// </summary>
         public static SwitchToMainThreadAwaitable SwitchToMainThread(CancellationToken cancellationToken = default)
         {
-            return new SwitchToMainThreadAwaitable(PlayerLoopTiming.Update, cancellationToken);
+            return new SwitchToMainThreadAwaitable(PlayerLoopTiming.Process, cancellationToken);
         }
 
         /// <summary>
@@ -33,7 +31,7 @@ namespace Cysharp.Threading.Tasks
         /// </summary>
         public static ReturnToMainThread ReturnToMainThread(CancellationToken cancellationToken = default)
         {
-            return new ReturnToMainThread(PlayerLoopTiming.Update, cancellationToken);
+            return new ReturnToMainThread(PlayerLoopTiming.Process, cancellationToken);
         }
 
         /// <summary>
@@ -47,12 +45,10 @@ namespace Cysharp.Threading.Tasks
         /// <summary>
         /// Queue the action to PlayerLoop.
         /// </summary>
-        public static void Post(Action action, PlayerLoopTiming timing = PlayerLoopTiming.Update)
+        public static void Post(Action action, PlayerLoopTiming timing = PlayerLoopTiming.Process)
         {
             PlayerLoopHelper.AddContinuation(timing, action);
         }
-
-#endif
 
         public static SwitchToThreadPoolAwaitable SwitchToThreadPool()
         {
@@ -83,9 +79,7 @@ namespace Cysharp.Threading.Tasks
             return new ReturnToSynchronizationContext(SynchronizationContext.Current, dontPostWhenSameContext, cancellationToken);
         }
     }
-
-#if UNITY_2018_3_OR_NEWER
-
+    
     public struct SwitchToMainThreadAwaitable
     {
         readonly PlayerLoopTiming playerLoopTiming;
@@ -185,8 +179,6 @@ namespace Cysharp.Threading.Tasks
         }
     }
 
-#endif
-
     public struct SwitchToThreadPoolAwaitable
     {
         public Awaiter GetAwaiter() => new Awaiter();
@@ -205,11 +197,7 @@ namespace Cysharp.Threading.Tasks
 
             public void UnsafeOnCompleted(Action continuation)
             {
-#if NETCOREAPP3_1
                 ThreadPool.UnsafeQueueUserWorkItem(ThreadPoolWorkItem.Create(continuation), false);
-#else
-                ThreadPool.UnsafeQueueUserWorkItem(switchToCallback, continuation);
-#endif
             }
 
             static void Callback(object state)
@@ -218,9 +206,7 @@ namespace Cysharp.Threading.Tasks
                 continuation();
             }
         }
-
-#if NETCOREAPP3_1
-
+        
         sealed class ThreadPoolWorkItem : IThreadPoolWorkItem, ITaskPoolNode<ThreadPoolWorkItem>
         {
             static TaskPool<ThreadPoolWorkItem> pool;
@@ -258,8 +244,6 @@ namespace Cysharp.Threading.Tasks
                 }
             }
         }
-
-#endif
     }
 
     public struct SwitchToTaskPoolAwaitable

@@ -1,8 +1,6 @@
 ﻿#pragma warning disable CS1591
 #pragma warning disable CS0108
 
-#define SUPPORT_VALUETASK
-
 using System;
 using System.Runtime.CompilerServices;
 
@@ -22,18 +20,14 @@ namespace Cysharp.Threading.Tasks
 
     // similar as IValueTaskSource
     public interface IUniTaskSource
-#if SUPPORT_VALUETASK
         : System.Threading.Tasks.Sources.IValueTaskSource
-#endif
     {
         UniTaskStatus GetStatus(short token);
         void OnCompleted(Action<object> continuation, object state, short token);
         void GetResult(short token);
 
         UniTaskStatus UnsafeGetStatus(); // only for debug use.
-
-#if SUPPORT_VALUETASK
-
+        
         System.Threading.Tasks.Sources.ValueTaskSourceStatus System.Threading.Tasks.Sources.IValueTaskSource.GetStatus(short token)
         {
             return (System.Threading.Tasks.Sources.ValueTaskSourceStatus)(int)((IUniTaskSource)this).GetStatus(token);
@@ -49,18 +43,12 @@ namespace Cysharp.Threading.Tasks
             // ignore flags, always none.
             ((IUniTaskSource)this).OnCompleted(continuation, state, token);
         }
-
-#endif
     }
 
     public interface IUniTaskSource<out T> : IUniTaskSource
-#if SUPPORT_VALUETASK
         , System.Threading.Tasks.Sources.IValueTaskSource<T>
-#endif
     {
         new T GetResult(short token);
-
-#if SUPPORT_VALUETASK
 
         new public UniTaskStatus GetStatus(short token)
         {
@@ -87,8 +75,6 @@ namespace Cysharp.Threading.Tasks
             // ignore flags, always none.
             ((IUniTaskSource)this).OnCompleted(continuation, state, token);
         }
-
-#endif
     }
 
     public static class UniTaskStatusExtensions

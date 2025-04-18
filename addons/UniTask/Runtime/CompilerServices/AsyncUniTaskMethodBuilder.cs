@@ -118,7 +118,7 @@ namespace Cysharp.Threading.Tasks.CompilerServices
             // don't use boxed stateMachine.
         }
 
-#if DEBUG || !UNITY_2018_3_OR_NEWER
+#if DEBUG
         // Important for IDE debugger.
         object debuggingId;
         private object ObjectIdForDebugger
@@ -249,7 +249,7 @@ namespace Cysharp.Threading.Tasks.CompilerServices
             // don't use boxed stateMachine.
         }
 
-#if DEBUG || !UNITY_2018_3_OR_NEWER
+#if DEBUG
         // Important for IDE debugger.
         object debuggingId;
         private object ObjectIdForDebugger

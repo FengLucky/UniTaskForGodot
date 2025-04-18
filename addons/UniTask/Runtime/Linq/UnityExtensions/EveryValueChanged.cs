@@ -11,14 +11,14 @@ namespace Cysharp.Threading.Tasks.Linq
         public static IUniTaskAsyncEnumerable<TProperty> EveryValueChanged<TTarget, TProperty>(TTarget target, Func<TTarget, TProperty> propertySelector, PlayerLoopTiming monitorTiming = PlayerLoopTiming.Process, IEqualityComparer<TProperty> equalityComparer = null, bool cancelImmediately = false)
             where TTarget : class
         {
-            var isUnityObject = target is GodotObject;
-            if (isUnityObject)
+            var isGodotObject = target is GodotObject;
+            if (isGodotObject)
             {
-                return new EveryValueChangedGodotObject<TTarget, TProperty>(target, propertySelector, equalityComparer ?? UnityEqualityComparer.GetDefault<TProperty>(), monitorTiming, cancelImmediately);
+                return new EveryValueChangedGodotObject<TTarget, TProperty>(target, propertySelector, equalityComparer ?? GodotEqualityComparer.GetDefault<TProperty>(), monitorTiming, cancelImmediately);
             }
             else
             {
-                return new EveryValueChangedStandardObject<TTarget, TProperty>(target, propertySelector, equalityComparer ?? UnityEqualityComparer.GetDefault<TProperty>(), monitorTiming, cancelImmediately);
+                return new EveryValueChangedStandardObject<TTarget, TProperty>(target, propertySelector, equalityComparer ?? GodotEqualityComparer.GetDefault<TProperty>(), monitorTiming, cancelImmediately);
             }
         }
     }

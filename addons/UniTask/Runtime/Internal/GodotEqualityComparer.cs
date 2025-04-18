@@ -4,7 +4,7 @@ using Godot;
 
 namespace Cysharp.Threading.Tasks.Internal
 {
-    internal static class UnityEqualityComparer
+    internal static class GodotEqualityComparer
     {
         public static readonly IEqualityComparer<Vector2> Vector2 = new Vector2EqualityComparer();
         public static readonly IEqualityComparer<Vector3> Vector3 = new Vector3EqualityComparer();

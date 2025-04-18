@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using Cysharp.Threading.Tasks.Internal;
+using Godot;
 
 namespace Cysharp.Threading.Tasks
 {
@@ -23,14 +24,30 @@ namespace Cysharp.Threading.Tasks
 
         public static class EditorEnableState
         {
+            static ConfigFile config;
             static bool enableAutoReload;
+
+            static EditorEnableState()
+            {
+                config = new ConfigFile();
+                config.Load("user://unitask.cfg");
+                enableTracking = config.GetValue("switch", EnableTrackingKey, false).AsBool();
+                enableAutoReload = config.GetValue("switch", EnableAutoReloadKey, false).AsBool();
+                enableStackTrace = config.GetValue("switch", EnableStackTraceKey, false).AsBool();
+            }
+            
             public static bool EnableAutoReload
             {
                 get { return enableAutoReload; }
                 set
                 {
+                    if (enableAutoReload == value)
+                    {
+                        return;
+                    }
                     enableAutoReload = value;
-                    //UnityEditor.EditorPrefs.SetBool(EnableAutoReloadKey, value);
+                    config.SetValue("switch",EnableAutoReloadKey,value);
+                    config.Save("user://unitask.cfg");
                 }
             }
 
@@ -40,8 +57,13 @@ namespace Cysharp.Threading.Tasks
                 get { return enableTracking; }
                 set
                 {
+                    if (enableTracking == value)
+                    {
+                        return;
+                    }
                     enableTracking = value;
-                    //UnityEditor.EditorPrefs.SetBool(EnableTrackingKey, value);
+                    config.SetValue("switch",EnableTrackingKey,value);
+                    config.Save("user://unitask.cfg");
                 }
             }
 
@@ -51,24 +73,25 @@ namespace Cysharp.Threading.Tasks
                 get { return enableStackTrace; }
                 set
                 {
+                    if (enableStackTrace == value)
+                    {
+                        return;
+                    }
                     enableStackTrace = value;
-                    //UnityEditor.EditorPrefs.SetBool(EnableStackTraceKey, value);
+                    config.SetValue("switch",EnableStackTraceKey,value);
+                    config.Save("user://unitask.cfg");
                 }
             }
         }
 
 #endif
-
-
-        static List<KeyValuePair<IUniTaskSource, (string formattedType, int trackingId, DateTime addTime, string stackTrace)>> listPool = new List<KeyValuePair<IUniTaskSource, (string formattedType, int trackingId, DateTime addTime, string stackTrace)>>();
-
-        static readonly WeakDictionary<IUniTaskSource, (string formattedType, int trackingId, DateTime addTime, string stackTrace)> tracking = new WeakDictionary<IUniTaskSource, (string formattedType, int trackingId, DateTime addTime, string stackTrace)>();
+        
+        static readonly WeakDictionary<IUniTaskSource, int> tracking = new ();
 
         [Conditional("TOOLS")]
         public static void TrackActiveTask(IUniTaskSource task, int skipFrame)
         {
 #if TOOLS
-            dirty = true;
             if (!EditorEnableState.EnableTracking) return;
             var stackTrace = EditorEnableState.EnableStackTrace ? new StackTrace(skipFrame, true).CleanupAsyncStackTrace() : "";
 
@@ -83,7 +106,10 @@ namespace Cysharp.Threading.Tasks
             {
                 typeName = task.GetType().Name;
             }
-            tracking.TryAdd(task, (typeName, Interlocked.Increment(ref trackingId), DateTime.UtcNow, stackTrace));
+
+            var id = Interlocked.Increment(ref trackingId);
+            EngineDebugger.SendMessage("uniTask:active",[typeName,id,((DateTimeOffset)DateTime.UtcNow).ToUnixTimeMilliseconds(),stackTrace]);
+            tracking.TryAdd(task, id);
 #endif
         }
 
@@ -91,41 +117,13 @@ namespace Cysharp.Threading.Tasks
         public static void RemoveTracking(IUniTaskSource task)
         {
 #if TOOLS
-            dirty = true;
             if (!EditorEnableState.EnableTracking) return;
-            var success = tracking.TryRemove(task);
-#endif
-        }
-
-        static bool dirty;
-
-        public static bool CheckAndResetDirty()
-        {
-            var current = dirty;
-            dirty = false;
-            return current;
-        }
-
-        /// <summary>(trackingId, awaiterType, awaiterStatus, createdTime, stackTrace)</summary>
-        public static void ForEachActiveTask(Action<int, string, UniTaskStatus, DateTime, string> action)
-        {
-            lock (listPool)
+            if (tracking.TryGetValue(task, out var id))
             {
-                var count = tracking.ToList(ref listPool, clear: false);
-                try
-                {
-                    for (int i = 0; i < count; i++)
-                    {
-                        action(listPool[i].Value.trackingId, listPool[i].Value.formattedType, listPool[i].Key.UnsafeGetStatus(), listPool[i].Value.addTime, listPool[i].Value.stackTrace);
-                        listPool[i] = default;
-                    }
-                }
-                catch
-                {
-                    listPool.Clear();
-                    throw;
-                }
+                tracking.TryRemove(task);
+                EngineDebugger.SendMessage("uniTask:remove", [id]);
             }
+#endif
         }
 
         static void TypeBeautify(Type type, StringBuilder sb)
@@ -166,13 +164,6 @@ namespace Cysharp.Threading.Tasks
                 sb.Append(type.Name);
             }
         }
-
-        //static string RemoveUniTaskNamespace(string str)
-        //{
-        //    return str.Replace("Cysharp.Threading.Tasks.CompilerServices", "")
-        //        .Replace("Cysharp.Threading.Tasks.Linq", "")
-        //        .Replace("Cysharp.Threading.Tasks", "");
-        //}
     }
 }
 

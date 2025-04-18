@@ -1,8 +1,6 @@
 ﻿#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 #pragma warning disable CS0436
 
-#define SUPPORT_VALUETASK
-
 using Cysharp.Threading.Tasks.CompilerServices;
 using System;
 using System.Diagnostics;
@@ -75,24 +73,16 @@ namespace Cysharp.Threading.Tasks
             if (status == UniTaskStatus.Canceled) return CompletedTasks.True;
             return new UniTask<bool>(new IsCanceledSource(source), token);
         }
-
-#if SUPPORT_VALUETASK
-
+        
         public static implicit operator System.Threading.Tasks.ValueTask(in UniTask self)
         {
             if (self.source == null)
             {
                 return default;
             }
-
-#if (UNITASK_NETCORE && NETSTANDARD2_0)
+            
             return self.AsValueTask();
-#else
-            return new System.Threading.Tasks.ValueTask(self.source, self.token);
-#endif
         }
-
-#endif
 
         public override string ToString()
         {
@@ -446,8 +436,7 @@ namespace Cysharp.Threading.Tasks
         {
             return self.AsUniTask();
         }
-
-#if SUPPORT_VALUETASK
+        
 
         public static implicit operator System.Threading.Tasks.ValueTask<T>(in UniTask<T> self)
         {
@@ -455,15 +444,8 @@ namespace Cysharp.Threading.Tasks
             {
                 return new System.Threading.Tasks.ValueTask<T>(self.result);
             }
-
-#if (UNITASK_NETCORE && NETSTANDARD2_0)
             return self.AsValueTask();
-#else
-            return new System.Threading.Tasks.ValueTask<T>(self.source, self.token);
-#endif
         }
-
-#endif
 
         /// <summary>
         /// returns (bool IsCanceled, T Result) instead of throws OperationCanceledException.

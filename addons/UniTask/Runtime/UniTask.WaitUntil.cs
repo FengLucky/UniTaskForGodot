@@ -664,7 +664,7 @@ namespace Cysharp.Threading.Tasks
             }
         }
 
-        // where T : UnityEngine.Object, can not add constraint
+        // where T : GodotObject, can not add constraint
         sealed class WaitUntilValueChangedGodotObjectPromise<T, U> : IUniTaskSource<U>, IPlayerLoopItem, ITaskPoolNode<WaitUntilValueChangedGodotObjectPromise<T, U>>
         {
             static TaskPool<WaitUntilValueChangedGodotObjectPromise<T, U>> pool;
@@ -707,7 +707,7 @@ namespace Cysharp.Threading.Tasks
                 result.targetAsGodotObject = target as GodotObject;
                 result.monitorFunction = monitorFunction;
                 result.currentValue = monitorFunction(target);
-                result.equalityComparer = equalityComparer ?? UnityEqualityComparer.GetDefault<U>();
+                result.equalityComparer = equalityComparer ?? GodotEqualityComparer.GetDefault<U>();
                 result.cancellationToken = cancellationToken;
                 result.cancelImmediately = cancelImmediately;
 
@@ -850,7 +850,7 @@ namespace Cysharp.Threading.Tasks
                 result.target = new WeakReference<T>(target, false); // wrap in WeakReference.
                 result.monitorFunction = monitorFunction;
                 result.currentValue = monitorFunction(target);
-                result.equalityComparer = equalityComparer ?? UnityEqualityComparer.GetDefault<U>();
+                result.equalityComparer = equalityComparer ?? GodotEqualityComparer.GetDefault<U>();
                 result.cancellationToken = cancellationToken;
                 result.cancelImmediately = cancelImmediately;
 

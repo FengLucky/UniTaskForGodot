@@ -138,14 +138,6 @@ namespace Cysharp.Threading.Tasks
                 throw new ArgumentOutOfRangeException("Delay does not allow minus delayTimeSpan. delayTimeSpan:" + delayTimeSpan);
             }
 
-#if UNITY_EDITOR
-            // force use Realtime.
-            if (PlayerLoopHelper.IsMainThread && !UnityEditor.EditorApplication.isPlaying)
-            {
-                delayType = DelayType.Realtime;
-            }
-#endif
-
             switch (delayType)
             {
                 case DelayType.UnscaledDeltaTime:

@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading;
+using Godot;
 
 namespace Cysharp.Threading.Tasks
 {
@@ -10,24 +11,31 @@ namespace Cysharp.Threading.Tasks
 
     public static class UniTaskScheduler
     {
+        public enum LogType
+        {
+            Log,
+            Warning,
+            Error,
+            Assert,
+            Exception
+        }
+        
         public static event Action<Exception> UnobservedTaskException;
 
         /// <summary>
         /// Propagate OperationCanceledException to UnobservedTaskException when true. Default is false.
         /// </summary>
         public static bool PropagateOperationCanceledException = false;
-
-#if UNITY_2018_3_OR_NEWER
-
+        
         /// <summary>
         /// Write log type when catch unobserved exception and not registered UnobservedTaskException. Default is Exception.
         /// </summary>
-        public static UnityEngine.LogType UnobservedExceptionWriteLogType = UnityEngine.LogType.Exception;
+        public static LogType UnobservedExceptionWriteLogType = LogType.Exception;
 
         /// <summary>
-        /// Dispatch exception event to Unity MainThread. Default is true.
+        /// Dispatch exception event to Godot MainThread. Default is true.
         /// </summary>
-        public static bool DispatchUnityMainThread = true;
+        public static bool DispatchGodotMainThread = true;
         
         // cache delegate.
         static readonly SendOrPostCallback handleExceptionInvoke = InvokeUnobservedTaskException;
@@ -36,7 +44,6 @@ namespace Cysharp.Threading.Tasks
         {
             UnobservedTaskException((Exception)state);
         }
-#endif
 
         internal static void PublishUnobservedTaskException(Exception ex)
         {
@@ -49,8 +56,7 @@ namespace Cysharp.Threading.Tasks
 
                 if (UnobservedTaskException != null)
                 {
-#if UNITY_2018_3_OR_NEWER
-                    if (!DispatchUnityMainThread || Thread.CurrentThread.ManagedThreadId == PlayerLoopHelper.MainThreadId)
+                    if (!DispatchGodotMainThread || Thread.CurrentThread.ManagedThreadId == PlayerLoopHelper.MainThreadId)
                     {
                         // allows inlining call.
                         UnobservedTaskException.Invoke(ex);
@@ -58,46 +64,38 @@ namespace Cysharp.Threading.Tasks
                     else
                     {
                         // Post to MainThread.
-                        PlayerLoopHelper.UnitySynchronizationContext.Post(handleExceptionInvoke, ex);
+                        PlayerLoopHelper.GodotSynchronizationContext.Post(handleExceptionInvoke,ex);
                     }
-#else
-                    UnobservedTaskException.Invoke(ex);
-#endif
                 }
                 else
                 {
-#if UNITY_2018_3_OR_NEWER
                     string msg = null;
-                    if (UnobservedExceptionWriteLogType != UnityEngine.LogType.Exception)
+                    if (UnobservedExceptionWriteLogType != LogType.Exception)
                     {
                         msg = "UnobservedTaskException: " + ex.ToString();
                     }
                     switch (UnobservedExceptionWriteLogType)
                     {
-                        case UnityEngine.LogType.Error:
-                            UnityEngine.Debug.LogError(msg);
+                        case LogType.Error:
+                            GD.PushError(msg);
                             break;
-                        case UnityEngine.LogType.Assert:
-                            UnityEngine.Debug.LogAssertion(msg);
+                        case LogType.Assert:
+                            GD.PushError(msg);
                             break;
-                        case UnityEngine.LogType.Warning:
-                            UnityEngine.Debug.LogWarning(msg);
+                        case LogType.Warning:
+                            GD.PushWarning(msg);
                             break;
-                        case UnityEngine.LogType.Log:
-                            UnityEngine.Debug.Log(msg);
+                        case LogType.Log:
+                            GD.Print(msg);
                             break;
-                        case UnityEngine.LogType.Exception:
-                            UnityEngine.Debug.LogException(ex);
+                        case LogType.Exception:
+                            GD.PushError(ex);
                             break;
                         default:
                             break;
                     }
-#else
-                    Console.WriteLine("UnobservedTaskException: " + ex.ToString());
-#endif
                 }
             }
         }
     }
 }
-

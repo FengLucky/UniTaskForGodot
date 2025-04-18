@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using Godot;
 
 namespace Cysharp.Threading.Tasks
 {
@@ -20,9 +21,7 @@ namespace Cysharp.Threading.Tasks
     {
         TriggerEvent<T> triggerEvent;
 
-#if UNITY_2018_3_OR_NEWER
-        [UnityEngine.SerializeField]
-#endif
+        [Export]
         T latestValue;
 
         public T Value

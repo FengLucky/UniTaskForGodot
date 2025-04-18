@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using Godot;
 
 namespace Cysharp.Threading.Tasks
 {
@@ -24,11 +25,7 @@ namespace Cysharp.Threading.Tasks
 
         void LogError(Exception ex)
         {
-#if UNITY_2018_3_OR_NEWER
-            UnityEngine.Debug.LogException(ex);
-#else
-            Console.WriteLine(ex);
-#endif
+            GD.PushError(ex);
         }
 
         public void SetResult(T value)
