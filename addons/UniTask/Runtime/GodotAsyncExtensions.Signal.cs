@@ -698,7 +698,7 @@ public class GodotSignalHandlerAsyncEnumerable<[MustBeVariant] T> : GodotSignalH
         return new GodotSignalHandlerAsyncEnumerator(obj, signalName, cancellationToken1, cancellationToken2);
     }
 
-    class GodotSignalHandlerAsyncEnumerator : GodotSignalHandlerAsyncGenericEnumerable<T>.GodotSignalHandlerAsyncEnumerator
+    new class GodotSignalHandlerAsyncEnumerator : GodotSignalHandlerAsyncGenericEnumerable<T>.GodotSignalHandlerAsyncEnumerator
     {
         public GodotSignalHandlerAsyncEnumerator(GodotObject obj, StringName signalName, CancellationToken cancellationToken1, CancellationToken cancellationToken2) : base(obj, signalName, cancellationToken1, cancellationToken2)
         {
@@ -728,7 +728,7 @@ public class GodotSignalHandlerAsyncEnumerable<[MustBeVariant] T1,[MustBeVariant
         return new GodotSignalHandlerAsyncEnumerator(obj, signalName, cancellationToken1, cancellationToken2);
     }
 
-    class GodotSignalHandlerAsyncEnumerator : GodotSignalHandlerAsyncGenericEnumerable<(T1,T2)>.GodotSignalHandlerAsyncEnumerator
+    new class GodotSignalHandlerAsyncEnumerator : GodotSignalHandlerAsyncGenericEnumerable<(T1,T2)>.GodotSignalHandlerAsyncEnumerator
     {
         public GodotSignalHandlerAsyncEnumerator(GodotObject obj, StringName signalName, CancellationToken cancellationToken1, CancellationToken cancellationToken2) : base(obj, signalName, cancellationToken1, cancellationToken2)
         {
@@ -758,7 +758,7 @@ public class GodotSignalHandlerAsyncEnumerable<[MustBeVariant] T1,[MustBeVariant
         return new GodotSignalHandlerAsyncEnumerator(obj, signalName, cancellationToken1, cancellationToken2);
     }
 
-    class GodotSignalHandlerAsyncEnumerator : GodotSignalHandlerAsyncGenericEnumerable<(T1,T2,T3)>.GodotSignalHandlerAsyncEnumerator
+    new class GodotSignalHandlerAsyncEnumerator : GodotSignalHandlerAsyncGenericEnumerable<(T1,T2,T3)>.GodotSignalHandlerAsyncEnumerator
     {
         public GodotSignalHandlerAsyncEnumerator(GodotObject obj, StringName signalName, CancellationToken cancellationToken1, CancellationToken cancellationToken2) : base(obj, signalName, cancellationToken1, cancellationToken2)
         {
@@ -788,7 +788,7 @@ public class GodotSignalHandlerAsyncEnumerable<[MustBeVariant] T1,[MustBeVariant
         return new GodotSignalHandlerAsyncEnumerator(obj, signalName, cancellationToken1, cancellationToken2);
     }
 
-    class GodotSignalHandlerAsyncEnumerator : GodotSignalHandlerAsyncGenericEnumerable<(T1,T2,T3,T4)>.GodotSignalHandlerAsyncEnumerator
+    new class GodotSignalHandlerAsyncEnumerator : GodotSignalHandlerAsyncGenericEnumerable<(T1,T2,T3,T4)>.GodotSignalHandlerAsyncEnumerator
     {
         public GodotSignalHandlerAsyncEnumerator(GodotObject obj, StringName signalName, CancellationToken cancellationToken1, CancellationToken cancellationToken2) : base(obj, signalName, cancellationToken1, cancellationToken2)
         {
@@ -818,7 +818,7 @@ public class GodotSignalHandlerAsyncEnumerable<[MustBeVariant] T1,[MustBeVariant
         return new GodotSignalHandlerAsyncEnumerator(obj, signalName, cancellationToken1, cancellationToken2);
     }
 
-    class GodotSignalHandlerAsyncEnumerator : GodotSignalHandlerAsyncGenericEnumerable<(T1,T2,T3,T4,T5)>.GodotSignalHandlerAsyncEnumerator
+    new class GodotSignalHandlerAsyncEnumerator : GodotSignalHandlerAsyncGenericEnumerable<(T1,T2,T3,T4,T5)>.GodotSignalHandlerAsyncEnumerator
     {
         public GodotSignalHandlerAsyncEnumerator(GodotObject obj, StringName signalName, CancellationToken cancellationToken1, CancellationToken cancellationToken2) : base(obj, signalName, cancellationToken1, cancellationToken2)
         {
@@ -848,7 +848,7 @@ public class GodotSignalHandlerAsyncEnumerable<[MustBeVariant] T1,[MustBeVariant
         return new GodotSignalHandlerAsyncEnumerator(obj, signalName, cancellationToken1, cancellationToken2);
     }
 
-    class GodotSignalHandlerAsyncEnumerator : GodotSignalHandlerAsyncGenericEnumerable<(T1,T2,T3,T4,T5,T6)>.GodotSignalHandlerAsyncEnumerator
+    new class GodotSignalHandlerAsyncEnumerator : GodotSignalHandlerAsyncGenericEnumerable<(T1,T2,T3,T4,T5,T6)>.GodotSignalHandlerAsyncEnumerator
     {
         public GodotSignalHandlerAsyncEnumerator(GodotObject obj, StringName signalName, CancellationToken cancellationToken1, CancellationToken cancellationToken2) : base(obj, signalName, cancellationToken1, cancellationToken2)
         {
@@ -878,7 +878,7 @@ public class GodotSignalHandlerAsyncEnumerable<[MustBeVariant] T1,[MustBeVariant
         return new GodotSignalHandlerAsyncEnumerator(obj, signalName, cancellationToken1, cancellationToken2);
     }
 
-    class GodotSignalHandlerAsyncEnumerator : GodotSignalHandlerAsyncGenericEnumerable<(T1,T2,T3,T4,T5,T6,T7)>.GodotSignalHandlerAsyncEnumerator
+    new class GodotSignalHandlerAsyncEnumerator : GodotSignalHandlerAsyncGenericEnumerable<(T1,T2,T3,T4,T5,T6,T7)>.GodotSignalHandlerAsyncEnumerator
     {
         public GodotSignalHandlerAsyncEnumerator(GodotObject obj, StringName signalName, CancellationToken cancellationToken1, CancellationToken cancellationToken2) : base(obj, signalName, cancellationToken1, cancellationToken2)
         {
@@ -908,7 +908,7 @@ public class GodotSignalHandlerAsyncEnumerable<[MustBeVariant] T1,[MustBeVariant
         return new GodotSignalHandlerAsyncEnumerator(obj, signalName, cancellationToken1, cancellationToken2);
     }
 
-    class GodotSignalHandlerAsyncEnumerator : GodotSignalHandlerAsyncGenericEnumerable<(T1,T2,T3,T4,T5,T6,T7,T8)>.GodotSignalHandlerAsyncEnumerator
+    new class GodotSignalHandlerAsyncEnumerator : GodotSignalHandlerAsyncGenericEnumerable<(T1,T2,T3,T4,T5,T6,T7,T8)>.GodotSignalHandlerAsyncEnumerator
     {
         public GodotSignalHandlerAsyncEnumerator(GodotObject obj, StringName signalName, CancellationToken cancellationToken1, CancellationToken cancellationToken2) : base(obj, signalName, cancellationToken1, cancellationToken2)
         {

@@ -1,0 +1,5 @@
+keys,en,zh_CN
+UniTask_Enable_AutoReload,Enable AutoReload,自动刷新
+UniTask_Tracking,Enable Tracking,记录
+Unitask_StackTrack,Enable Stack Trace,堆栈记录
+Unitask_Reload,Reload,刷新

@@ -1,13 +1,21 @@
+using System;
+using System.Diagnostics;
 using Godot;
-using Godot.Collections;
+using Array = Godot.Collections.Array;
 
 namespace Cysharp.Threading.Tasks.Editor;
 
 #if TOOLS
 public partial class UniTaskTrackerDebugger:EditorDebuggerPlugin
 {
-    private readonly System.Collections.Generic.Dictionary<int, UniTaskTrackerPanel> _trees = new();
+    private readonly System.Collections.Generic.Dictionary<int, UniTaskTrackerPanel> _panels = new();
 
+    public UniTaskTrackerDebugger()
+    {
+        var trace = new StackTrace();
+        GD.Print("UniTaskTrackerDebugger:"+trace);
+    }
+    
     public override bool _HasCapture(string capture)
     {
         return capture == "uniTask";
@@ -17,17 +25,29 @@ public partial class UniTaskTrackerDebugger:EditorDebuggerPlugin
     {
         if (message.EndsWith(":active"))
         {
-            if (_trees.TryGetValue(sessionId, out var tree))
+            if (_panels.TryGetValue(sessionId, out var panel))
             {
-                tree.AddTrack(data[0].AsInt32(),data[1].AsString(),data[2].AsInt64(),data[3].AsString());
+                panel.AddTrack(data[0].AsInt32(),data[1].AsString(),data[2].AsInt64(),data[3].AsString());
             }
+            return true;
         }
-        else if (message.EndsWith(":remove"))
+        
+        if (message.EndsWith(":remove"))
         {
-            if (_trees.TryGetValue(sessionId, out var tree))
+            if (_panels.TryGetValue(sessionId, out var panel))
             {
-                tree.RemoveTrack(data[0].AsInt32());
+                panel.RemoveTrack(data[0].AsInt32());
             }
+            return true;
+        }
+
+        if (message.EndsWith(":requestSetting"))
+        {
+            if (_panels.TryGetValue(sessionId, out var tree))
+            {
+                tree.SendSetting();
+            }
+            return true;
         }
 
         return false;
@@ -37,14 +57,20 @@ public partial class UniTaskTrackerDebugger:EditorDebuggerPlugin
     {
         base._SetupSession(sessionId);
         var session = GetSession(sessionId);
-        UniTaskTrackerPanel panel = null;
+        var resource = ResourceLoader.Load<PackedScene>("res://addons/UniTask/Editor/UniTaskTrackerPanel.tscn");
+        var panel = resource.Instantiate<UniTaskTrackerPanel>();
         session.AddSessionTab(panel);
-        _trees.Add(sessionId,panel);
-        session.Connect(EditorDebuggerSession.SignalName.Stopped, Callable.From(() =>
+        _panels.Add(sessionId,panel);
+        panel.Init(sessionId, session);
+        
+        session.Started += () =>
         {
-            _trees.Remove(sessionId);
-            session.RemoveSessionTab(panel);
-        }), (uint)ConnectFlags.OneShot);
+            GD.Print("session started");
+            if (_panels.TryGetValue(sessionId, out var p))
+            {
+                p.Clear();
+            }
+        };
     }
 }
 #endif

@@ -1,102 +1,72 @@
 ﻿#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using Cysharp.Threading.Tasks.Internal;
 using Godot;
+using Array = Godot.Collections.Array;
 
 namespace Cysharp.Threading.Tasks
 {
     // public for add user custom.
-
+    
     public static class TaskTracker
     {
 #if TOOLS
-
         static int trackingId = 0;
+        static readonly WeakDictionary<IUniTaskSource, int> tracking = new ();
+        static bool enableTracking = true;
+        static bool enableStackTrace = true;
+        static bool inited;
 
-        public const string EnableAutoReloadKey = "UniTaskTrackerWindow_EnableAutoReloadKey";
-        public const string EnableTrackingKey = "UniTaskTrackerWindow_EnableTrackingKey";
-        public const string EnableStackTraceKey = "UniTaskTrackerWindow_EnableStackTraceKey";
-
-        public static class EditorEnableState
+        static TaskTracker()
         {
-            static ConfigFile config;
-            static bool enableAutoReload;
-
-            static EditorEnableState()
+            if (!Engine.IsEditorHint())
             {
-                config = new ConfigFile();
-                config.Load("user://unitask.cfg");
-                enableTracking = config.GetValue("switch", EnableTrackingKey, false).AsBool();
-                enableAutoReload = config.GetValue("switch", EnableAutoReloadKey, false).AsBool();
-                enableStackTrace = config.GetValue("switch", EnableStackTraceKey, false).AsBool();
-            }
-            
-            public static bool EnableAutoReload
-            {
-                get { return enableAutoReload; }
-                set
-                {
-                    if (enableAutoReload == value)
-                    {
-                        return;
-                    }
-                    enableAutoReload = value;
-                    config.SetValue("switch",EnableAutoReloadKey,value);
-                    config.Save("user://unitask.cfg");
-                }
-            }
-
-            static bool enableTracking;
-            public static bool EnableTracking
-            {
-                get { return enableTracking; }
-                set
-                {
-                    if (enableTracking == value)
-                    {
-                        return;
-                    }
-                    enableTracking = value;
-                    config.SetValue("switch",EnableTrackingKey,value);
-                    config.Save("user://unitask.cfg");
-                }
-            }
-
-            static bool enableStackTrace;
-            public static bool EnableStackTrace
-            {
-                get { return enableStackTrace; }
-                set
-                {
-                    if (enableStackTrace == value)
-                    {
-                        return;
-                    }
-                    enableStackTrace = value;
-                    config.SetValue("switch",EnableStackTraceKey,value);
-                    config.Save("user://unitask.cfg");
-                }
+                Init();
             }
         }
 
-#endif
+        public static void Init()
+        {
+            if (inited)
+            {
+                return;
+            }
+            var action = OnCapture;
+            EngineDebugger.Singleton.SendMessage("uniTask:requestSetting",[]);
+            EngineDebugger.RegisterMessageCapture("uniTaskSetting",Callable.From(action));
+            inited = true;
+        }
         
-        static readonly WeakDictionary<IUniTaskSource, int> tracking = new ();
+        static bool OnCapture(string message,Array data)
+        {
+            if (message == "tracking")
+            {
+                enableTracking = data[0].AsBool();
+                return true;
+            }
+            if (message == "stackTrace")
+            {
+                enableStackTrace = data[0].AsBool();
+                return true;
+            }
+
+            return false;
+        }
+#endif
 
         [Conditional("TOOLS")]
         public static void TrackActiveTask(IUniTaskSource task, int skipFrame)
         {
 #if TOOLS
-            if (!EditorEnableState.EnableTracking) return;
-            var stackTrace = EditorEnableState.EnableStackTrace ? new StackTrace(skipFrame, true).CleanupAsyncStackTrace() : "";
+            if (!enableTracking) return;
+            var stackTrace = enableStackTrace ? new StackTrace(skipFrame, true).CleanupAsyncStackTrace() : "";
 
             string typeName;
-            if (EditorEnableState.EnableStackTrace)
+            if (enableStackTrace)
             {
                 var sb = new StringBuilder();
                 TypeBeautify(task.GetType(), sb);
@@ -108,7 +78,7 @@ namespace Cysharp.Threading.Tasks
             }
 
             var id = Interlocked.Increment(ref trackingId);
-            EngineDebugger.SendMessage("uniTask:active",[typeName,id,((DateTimeOffset)DateTime.UtcNow).ToUnixTimeMilliseconds(),stackTrace]);
+            EngineDebugger.SendMessage("uniTask:active",[id,typeName,((DateTimeOffset)DateTime.UtcNow).ToUnixTimeMilliseconds(),stackTrace]);
             tracking.TryAdd(task, id);
 #endif
         }
@@ -117,7 +87,7 @@ namespace Cysharp.Threading.Tasks
         public static void RemoveTracking(IUniTaskSource task)
         {
 #if TOOLS
-            if (!EditorEnableState.EnableTracking) return;
+            if (!enableTracking) return;
             if (tracking.TryGetValue(task, out var id))
             {
                 tracking.TryRemove(task);

@@ -12,12 +12,23 @@ config_version=5
 
 config/name="UniTask"
 run/main_scene="uid://57rg04rat51x"
-config/features=PackedStringArray("4.4", "C#", "GL Compatibility")
+config/features=PackedStringArray("4.5", "C#", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [dotnet]
 
 project/assembly_name="UniTask"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/UniTask/plugin.cfg")
+
+[internationalization]
+
+locale/translation_remaps={
+"res://addons/UniTask/Translations/translations.csv": PackedStringArray()
+}
+locale/translations=PackedStringArray("res://addons/UniTask/Translations/translations.en.translation", "res://addons/UniTask/Translations/translations.zh_CN.translation")
 
 [rendering]
 
