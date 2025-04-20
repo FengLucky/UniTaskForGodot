@@ -3,4 +3,9 @@
     <TargetFramework>net8.0</TargetFramework>
     <EnableDynamicLoading>true</EnableDynamicLoading>
   </PropertyGroup>
+  <ItemGroup>
+    <Content Include="addons\UniTask\Editor\UniTaskTrackerDebugger.gd" />
+    <Content Include="addons\UniTask\Editor\UniTaskTrackerPanel.gd" />
+    <Content Include="addons\UniTask\Editor\UniTaskTrackerPlugin.gd" />
+  </ItemGroup>
 </Project>

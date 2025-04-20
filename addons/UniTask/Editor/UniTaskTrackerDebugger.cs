@@ -6,15 +6,10 @@ using Array = Godot.Collections.Array;
 namespace Cysharp.Threading.Tasks.Editor;
 
 #if TOOLS
+[Tool]
 public partial class UniTaskTrackerDebugger:EditorDebuggerPlugin
 {
     private readonly System.Collections.Generic.Dictionary<int, UniTaskTrackerPanel> _panels = new();
-
-    public UniTaskTrackerDebugger()
-    {
-        var trace = new StackTrace();
-        GD.Print("UniTaskTrackerDebugger:"+trace);
-    }
     
     public override bool _HasCapture(string capture)
     {

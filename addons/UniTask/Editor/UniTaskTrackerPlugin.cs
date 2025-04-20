@@ -32,8 +32,8 @@ public partial class UniTaskTrackerPlugin:EditorPlugin
             
         }
         
-        _debugger = new();
-        AddDebuggerPlugin(_debugger);
+        // _debugger = new();
+        // AddDebuggerPlugin(_debugger);
         
         var dirPath = "res://addons/UniTask/Translations/";
         var dir = DirAccess.Open(dirPath);
@@ -46,12 +46,31 @@ public partial class UniTaskTrackerPlugin:EditorPlugin
                 if (path.EndsWith(".translation"))
                 {
                     var translation = GD.Load<Translation>($"{dirPath}/{path}");
+                    
                     TranslationServer.AddTranslation(translation);
                 }
                 path = dir.GetNext();
             }
             dir.ListDirEnd();
             dir.Dispose();
+        }
+    }
+    
+    public override void _Notification(int what)
+    {
+        base._Notification(what);
+        switch ((long)what)
+        {
+            case NotificationExtensionReloaded:
+                GD.Print("NotificationExtensionReloaded");
+                break;
+            case NotificationExitTree:
+                GD.Print("NotificationExitTree");
+                break;
+            case NotificationPostinitialize:
+                GD.Print("NotificationPostinitialize");
+                
+                break;
         }
     }
 
@@ -76,6 +95,7 @@ public partial class UniTaskTrackerPlugin:EditorPlugin
     public override void _ExitTree()
     {
         base._ExitTree();
+        
         if (!Engine.IsEditorHint())
         {
             return;
