@@ -48,14 +48,28 @@ namespace Cysharp.Threading.Tasks.Internal
         {
             if (stackTrace == null) return "";
 
+            int i = 0;
+
+            bool needSkip = true;
             var sb = new StringBuilder();
-            for (int i = 0; i < stackTrace.FrameCount; i++)
+            for (; i < stackTrace.FrameCount; i++)
             {
                 var sf = stackTrace.GetFrame(i);
 
                 var mb = sf.GetMethod();
-
                 if (IgnoreLine(mb)) continue;
+
+                if (needSkip)
+                {
+                    var declareType = mb?.DeclaringType?.FullName;
+                    if (declareType?.StartsWith("Cysharp.Threading.Tasks") == true)
+                    {
+                        continue;
+                    }
+
+                    needSkip = false;
+                }
+                
                 if (IsAsync(mb))
                 {
                     sb.Append("async ");

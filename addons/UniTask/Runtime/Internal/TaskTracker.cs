@@ -63,7 +63,7 @@ namespace Cysharp.Threading.Tasks
         {
 #if TOOLS
             if (!enableTracking) return;
-            var stackTrace = enableStackTrace ? new StackTrace(skipFrame, true).CleanupAsyncStackTrace() : "";
+            var stackTrace = enableStackTrace ? new StackTrace(0, true).CleanupAsyncStackTrace() : "";
 
             string typeName;
             if (enableStackTrace)
