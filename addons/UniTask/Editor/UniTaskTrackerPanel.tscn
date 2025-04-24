@@ -1,20 +1,21 @@
 [gd_scene load_steps=2 format=3 uid="uid://ctiaulv1slsvp"]
 
-[ext_resource type="Script" uid="uid://bxtlwdw1eexn1" path="res://addons/UniTask/Editor/UniTaskTrackerPanel.cs" id="1_ju0l8"]
+[ext_resource type="Script" uid="uid://bp2l05fkw3fnx" path="res://addons/UniTask/Editor/UniTaskTrackerPanel.gd" id="1_ju0l8"]
 
-[node name="UniTask" type="Panel" node_paths=PackedStringArray("_tree", "_stackLabel", "_trackBtn", "_stackTrackBtn", "_reloadBtn", "_autoReloadBtn")]
+[node name="UniTask" type="Panel" node_paths=PackedStringArray("tree", "stack_label", "track_btn", "stack_trace_btn", "reload_btn", "auto_reload_btn", "clear_btn")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ju0l8")
-_tree = NodePath("PanelContainer/VSplitContainer/Tree")
-_stackLabel = NodePath("PanelContainer/VSplitContainer/Stack")
-_trackBtn = NodePath("Menu/Tracking")
-_stackTrackBtn = NodePath("Menu/StackTrack")
-_reloadBtn = NodePath("Menu/Reload")
-_autoReloadBtn = NodePath("Menu/AutoReload")
+tree = NodePath("PanelContainer/VSplitContainer/Tree")
+stack_label = NodePath("PanelContainer/VSplitContainer/Stack")
+track_btn = NodePath("Menu/Tracking")
+stack_trace_btn = NodePath("Menu/StackTrack")
+reload_btn = NodePath("Menu/Reload")
+auto_reload_btn = NodePath("Menu/AutoReload")
+clear_btn = NodePath("Menu/Clear")
 
 [node name="Menu" type="HBoxContainer" parent="."]
 custom_minimum_size = Vector2(0, 30)
@@ -49,6 +50,11 @@ layout_mode = 2
 focus_mode = 0
 text = "Unitask_Reload"
 
+[node name="Clear" type="Button" parent="Menu"]
+layout_mode = 2
+focus_mode = 0
+text = "Unitask_Clear"
+
 [node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
@@ -64,14 +70,21 @@ layout_mode = 2
 split_offset = 300
 
 [node name="Tree" type="Tree" parent="PanelContainer/VSplitContainer"]
-custom_minimum_size = Vector2(0, 80)
+custom_minimum_size = Vector2(300, 80)
 layout_mode = 2
 focus_mode = 0
 columns = 3
 column_titles_visible = true
+hide_folding = true
+enable_recursive_folding = false
 hide_root = true
 select_mode = 1
+scroll_horizontal_enabled = false
+auto_tooltip = false
 
 [node name="Stack" type="RichTextLabel" parent="PanelContainer/VSplitContainer"]
 custom_minimum_size = Vector2(0, 80)
 layout_mode = 2
+focus_mode = 2
+bbcode_enabled = true
+selection_enabled = true

@@ -16,8 +16,6 @@ public partial class Sample : Node
         {
             Delay(3).Forget();
             await UniTask.Delay(TimeSpan.FromSeconds(5));
-            
-            
         }
     }
 

@@ -239,8 +239,8 @@ namespace Cysharp.Threading.Tasks.Internal
             else
             {
                 var fname = fi.FullName.Replace(Path.DirectorySeparatorChar, '/').Replace(PlayerLoopHelper.ApplicationDataPath, "");
-                var withAssetsPath = "Assets/" + fname;
-                return "<a href=\"" + withAssetsPath + "\" line=\"" + line + "\">" + withAssetsPath + ":" + line + "</a>";
+                var withResPath = "res://" + fname;
+                return "[color=yellow][url={\"path\":\"" + fname + "\",\"line\":" + line + "}]" + withResPath + ":" + line + "[/url][/color]";
             }
         }
     }
