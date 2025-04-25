@@ -25,10 +25,7 @@ enabled=PackedStringArray("res://addons/UniTask/plugin.cfg")
 
 [internationalization]
 
-locale/translation_remaps={
-"res://addons/UniTask/Translations/translations.csv": PackedStringArray()
-}
-locale/translations=PackedStringArray("res://addons/UniTask/Translations/translations.en.translation", "res://addons/UniTask/Translations/translations.zh_CN.translation")
+locale/translation_remaps={}
 
 [rendering]
 

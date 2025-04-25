@@ -134,9 +134,9 @@ func _ready() -> void:
 	self.track_btn.toggled.connect(self._on_toggled_track);
 	self.clear_btn.pressed.connect(self.clear);
 	self.stack_label.connect("meta_clicked",self._on_click_code_link);
-	self.tree.set_column_title(0,"TaskType");
-	self.tree.set_column_title(1,"Elapsed");
-	self.tree.set_column_title(2,"Position");
+	self.tree.set_column_title(0,tr("UniTask_TaskType"));
+	self.tree.set_column_title(1,tr("UniTask_Elapsed"));
+	self.tree.set_column_title(2,tr("UniTask_Position"));
 	self.tree.set_column_expand_ratio(0,20);
 	self.tree.set_column_expand_ratio(1,5);
 	self.tree.set_column_expand_ratio(2,75);
@@ -187,18 +187,35 @@ func _on_click_code_link(json):
 	var external_editor = settings.get_setting("dotnet/editor/external_editor");
 	var editor_path = settings.get_setting("dotnet/editor/editor_path_optional");
 	var param = JSON.parse_string(json);
-	var path:String = ProjectSettings.globalize_path("res://") + param.path;
+	var project_path:String =  ProjectSettings.globalize_path("res://");
+	var file_path:String = project_path + param.path;
+	var sln_path:String;
 	var line:int = param.line;
-	var args:String;
+	var args:PackedStringArray;
 	
+	var dir: DirAccess = DirAccess.open("res://");
+	dir.list_dir_begin();
+	var p: String = dir.get_next();
+	while p != null and p != "":
+		if(p.ends_with(".sln")):
+			sln_path = ProjectSettings.globalize_path("res://")+p;
+			break;
+		p = dir.get_next();
+	dir.list_dir_end();
+		
 	match external_editor:
-		2:
-			pass
+		1:
+			args = [sln_path,"-command","Edit.OpenFile '"+param.path+"'","-command","Edit.GoTo "+str(line)]
 		3:
-			pass
+			args = [sln_path,"--openfile='"+param.path+"'","--line="+str(line)];
 		4:
-			pass
+			args = [ProjectSettings.globalize_path("res://"),"-g",file_path+":"+str(line)];
 		5:
-			args = "\"" + path + "\" --line " + str(line);
-	print(editor_path + " " + args)		
-	OS.execute(editor_path,[args])				
+			args = ["--line",str(line),file_path];
+		6:
+			var custom_execute_args:String = settings.get_setting("dotnet/editor/custom_exec_path_args");
+			custom_execute_args = custom_execute_args.format({"file":"'"+file_path+"'","line":line});
+			args = [custom_execute_args]
+		_:
+			return;		
+	OS.execute_with_pipe(editor_path,args)			

@@ -48,12 +48,12 @@ text = "Unitask_StackTrack"
 [node name="Reload" type="Button" parent="Menu"]
 layout_mode = 2
 focus_mode = 0
-text = "Unitask_Reload"
+text = "UniTask_Reload"
 
 [node name="Clear" type="Button" parent="Menu"]
 layout_mode = 2
 focus_mode = 0
-text = "Unitask_Clear"
+text = "UniTask_Clear"
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 1
