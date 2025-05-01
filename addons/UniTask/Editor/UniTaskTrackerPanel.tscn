@@ -43,7 +43,7 @@ text = "UniTask_Tracking"
 layout_mode = 2
 focus_mode = 0
 toggle_mode = true
-text = "Unitask_StackTrack"
+text = "UniTask_StackTrack"
 
 [node name="Reload" type="Button" parent="Menu"]
 layout_mode = 2
