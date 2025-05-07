@@ -2,6 +2,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using Cysharp.Threading.Tasks.Internal;
@@ -10,61 +11,46 @@ using Array = Godot.Collections.Array;
 
 namespace Cysharp.Threading.Tasks
 {
-    // public for add user custom.
-    
-    public static class TaskTracker
+    public sealed partial class TaskTracker : EngineProfiler
     {
-#if TOOLS
+#if DEBUG
         static int trackingId = 0;
         static readonly WeakDictionary<IUniTaskSource, int> tracking = new ();
         static bool enableTracking = true;
         static bool enableStackTrace = true;
         static bool inited;
+        static Array trackData = new();
+        
+        private TaskTracker(){ }
 
-        static TaskTracker()
+#pragma warning disable CA2255
+        [ModuleInitializer]
+#pragma warning restore CA2255
+        internal static void Init()
         {
-            if (!Engine.IsEditorHint())
+            if (Engine.IsEditorHint())
             {
-                Init();
+                return;
             }
-        }
-
-        public static void Init()
-        {
+            
             if (inited)
             {
                 return;
             }
-            var action = OnCapture;
-            EngineDebugger.Singleton.SendMessage("uniTask:requestSetting",[]);
-            EngineDebugger.RegisterMessageCapture("uniTaskSetting",Callable.From(action));
+            
+            EngineDebugger.RegisterProfiler("uniTask",new TaskTracker());
             inited = true;
         }
-        
-        static bool OnCapture(string message,Array data)
-        {
-            if (message == "tracking")
-            {
-                enableTracking = data[0].AsBool();
-                return true;
-            }
-            if (message == "stackTrace")
-            {
-                enableStackTrace = data[0].AsBool();
-                return true;
-            }
 
-            return false;
-        }
-#endif
-
-        [Conditional("TOOLS")]
+        [Conditional("DEBUG")]
         public static void TrackActiveTask(IUniTaskSource task, int skipFrame)
         {
-#if TOOLS
-            if (!enableTracking) return;
+            if (!enableTracking)
+            {
+                return;
+            }
+            
             var stackTrace = enableStackTrace ? new StackTrace(0, true).CleanupAsyncStackTrace() : "";
-
             string typeName;
             if (enableStackTrace)
             {
@@ -78,22 +64,25 @@ namespace Cysharp.Threading.Tasks
             }
 
             var id = Interlocked.Increment(ref trackingId);
-            EngineDebugger.SendMessage("uniTask:active",[id,typeName,((DateTimeOffset)DateTime.UtcNow).ToUnixTimeMilliseconds(),stackTrace]);
             tracking.TryAdd(task, id);
-#endif
+            
+            trackData.Add(1);
+            trackData.Add(id);
+            trackData.Add(typeName);
+            trackData.Add(((DateTimeOffset)DateTime.UtcNow).ToUnixTimeMilliseconds());
+            trackData.Add(stackTrace);
         }
 
-        [Conditional("TOOLS")]
+        [Conditional("DEBUG")]
         public static void RemoveTracking(IUniTaskSource task)
         {
-#if TOOLS
             if (!enableTracking) return;
             if (tracking.TryGetValue(task, out var id))
             {
                 tracking.TryRemove(task);
-                EngineDebugger.SendMessage("uniTask:remove", [id]);
+                trackData.Add(2);
+                trackData.Add(id);
             }
-#endif
         }
 
         static void TypeBeautify(Type type, StringBuilder sb)
@@ -134,6 +123,35 @@ namespace Cysharp.Threading.Tasks
                 sb.Append(type.Name);
             }
         }
+
+        public override void _Toggle(bool enable, Array options)
+        {
+            base._Toggle(enable, options);
+            enableTracking = enable;
+            if (options.Count > 0)
+            {
+                enableStackTrace = options[0].AsBool();
+            }
+
+            if (!enableTracking)
+            {
+                trackData.Clear();
+            }
+
+            GD.Print("toggle enable:"+enable+" options:"+options);
+        }
+
+        public override void _Tick(double frameTime, double processTime, double physicsTime, double physicsFrameTime)
+        {
+            base._Tick(frameTime, processTime, physicsTime, physicsFrameTime);
+            if (trackData.Count > 0)
+            {
+                EngineDebugger.SendMessage("uniTask:track",trackData);
+                GD.Print("send data:"+trackData.Count);
+                trackData = new();
+            }
+        }
+#endif
     }
 }
 

@@ -51,13 +51,18 @@ func init(id:int,session:EditorDebuggerSession)->void:
 	self.session_id = id
 	self.session = session;
 	self.load_config();
+	self.toggle_profiler();
 	
 func start():
 	self.running = true;
 	self.clear();
+	self.toggle_profiler();
 	
 func stop():
 	self.running = false;		
+	
+func toggle_profiler():
+	self.session.toggle_profiler("uniTask",self.track_btn.button_pressed,[self.stack_trace_btn.button_pressed])	
 	
 func add_track(id:int,type_name:String,start_time:int,stack_trace:String):
 	var data = TrackData.new();
@@ -77,11 +82,7 @@ func remove_track(id:int):
 		real_tracking.remove_at(index);
 		if self.auto_reload:
 			tracking.remove_at(index);
-			self.refresh_items();
-			
-func send_setting():
-	self.session.send_message("uniTaskSetting:tracking",[self.config.get_value(String.num_int64(self.session_id),EnableTrackingKey,false) as bool]);
-	self.session.send_message("uniTaskSetting:stackTrace",[self.config.get_value(String.num_int64(self.session_id),EnableStackTraceKey,false) as bool]);
+			self.refresh_items();		
 				
 func clear()->void:
 	self.tracking.clear();
@@ -173,12 +174,12 @@ func _on_toggled_auto_reload(open:bool):
 func _on_toggled_stack_trace(open:bool):
 	self.config.set_value(String.num_int64(self.session_id),EnableStackTraceKey,open);
 	self.config.save("user://unitask_tracker.cfg");
-	self.session.send_message("uniTaskSetting:stackTrace",[open]);
+	self.toggle_profiler();
 
 func _on_toggled_track(open:bool):
 	self.config.set_value(String.num_int64(self.session_id),EnableTrackingKey,open);
 	self.config.save("user://unitask_tracker.cfg");
-	self.session.send_message("uniTaskSetting:tracking",[open]);
+	self.toggle_profiler();
 	if !open :
 		self.clear()
 
