@@ -132,7 +132,17 @@ namespace Cysharp.Threading.Tasks
             enableTracking = enable;
             if (options.Count > 0)
             {
-                enableStackTrace = options[0].AsBool();
+                // Before Godot 4.5, parameters passed to the custom debugger interface would be incorrectly expanded,
+                // causing parsing failure and preventing the custom debugger from starting.
+                // We avoid this bug by nesting the array one level deeper.
+                if (options[0].VariantType == Variant.Type.Array)
+                {
+                    enableStackTrace = options[0].AsGodotArray()[0].AsBool();
+                }
+                else
+                {
+                    enableStackTrace = options[0].AsBool();
+                }
             }
 
             if (!enableTracking)

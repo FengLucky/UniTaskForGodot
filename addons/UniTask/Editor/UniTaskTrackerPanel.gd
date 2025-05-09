@@ -62,7 +62,10 @@ func stop():
 	self.running = false;		
 	
 func toggle_profiler():
-	self.session.toggle_profiler("uniTask",self.track_btn.button_pressed,[self.stack_trace_btn.button_pressed])	
+	# Before Godot 4.5, parameters passed to the custom debugger interface would be incorrectly expanded,
+	# causing parsing failure and preventing the custom debugger from starting.
+	# We avoid this bug by nesting the array one level deeper.
+	self.session.toggle_profiler("uniTask",self.track_btn.button_pressed,[[self.stack_trace_btn.button_pressed]])
 	
 func add_track(id:int,type_name:String,start_time:int,stack_trace:String):
 	var data = TrackData.new();
