@@ -13,7 +13,6 @@ namespace Cysharp.Threading.Tasks
 {
     public sealed partial class TaskTracker : EngineProfiler
     {
-#if DEBUG
         static int trackingId = 0;
         static readonly WeakDictionary<IUniTaskSource, int> tracking = new ();
         static bool enableTracking = true;
@@ -28,6 +27,11 @@ namespace Cysharp.Threading.Tasks
 #pragma warning restore CA2255
         internal static void Init()
         {
+            if (!EngineDebugger.IsActive())
+            {
+                return;
+            }
+            
             if (Engine.IsEditorHint())
             {
                 return;
@@ -41,8 +45,7 @@ namespace Cysharp.Threading.Tasks
             EngineDebugger.RegisterProfiler("uniTask",new TaskTracker());
             inited = true;
         }
-
-        [Conditional("DEBUG")]
+        
         public static void TrackActiveTask(IUniTaskSource task, int skipFrame)
         {
             if (!enableTracking)
@@ -72,8 +75,7 @@ namespace Cysharp.Threading.Tasks
             trackData.Add(((DateTimeOffset)DateTime.UtcNow).ToUnixTimeMilliseconds());
             trackData.Add(stackTrace);
         }
-
-        [Conditional("DEBUG")]
+        
         public static void RemoveTracking(IUniTaskSource task)
         {
             if (!enableTracking) return;
@@ -137,8 +139,6 @@ namespace Cysharp.Threading.Tasks
             {
                 trackData.Clear();
             }
-
-            GD.Print("toggle enable:"+enable+" options:"+options);
         }
 
         public override void _Tick(double frameTime, double processTime, double physicsTime, double physicsFrameTime)
@@ -147,11 +147,9 @@ namespace Cysharp.Threading.Tasks
             if (trackData.Count > 0)
             {
                 EngineDebugger.SendMessage("uniTask:track",trackData);
-                GD.Print("send data:"+trackData.Count);
                 trackData = new();
             }
         }
-#endif
     }
 }
 
