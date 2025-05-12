@@ -187,39 +187,6 @@ func _on_toggled_track(open:bool):
 		self.clear()
 
 func _on_click_code_link(json):
-	var settings = EditorInterface.get_editor_settings();
-	var external_editor = settings.get_setting("dotnet/editor/external_editor");
-	var editor_path = settings.get_setting("dotnet/editor/editor_path_optional");
 	var param = JSON.parse_string(json);
-	var project_path:String =  ProjectSettings.globalize_path("res://");
-	var file_path:String = project_path + param.path;
-	var sln_path:String;
-	var line:int = param.line;
-	var args:PackedStringArray;
-	
-	var dir: DirAccess = DirAccess.open("res://");
-	dir.list_dir_begin();
-	var p: String = dir.get_next();
-	while p != null and p != "":
-		if(p.ends_with(".sln")):
-			sln_path = ProjectSettings.globalize_path("res://")+p;
-			break;
-		p = dir.get_next();
-	dir.list_dir_end();
-		
-	match external_editor:
-		1:
-			args = [sln_path,"-command","Edit.OpenFile '"+param.path+"'","-command","Edit.GoTo "+str(line)]
-		3:
-			args = [sln_path,"--openfile='"+param.path+"'","--line="+str(line)];
-		4:
-			args = [ProjectSettings.globalize_path("res://"),"-g",file_path+":"+str(line)];
-		5:
-			args = ["--line",str(line),file_path];
-		6:
-			var custom_execute_args:String = settings.get_setting("dotnet/editor/custom_exec_path_args");
-			custom_execute_args = custom_execute_args.format({"file":"'"+file_path+"'","line":line});
-			args = [custom_execute_args]
-		_:
-			return;		
-	OS.execute_with_pipe(editor_path,args)			
+	var script = load("res://"+param.path) as Script;
+	EditorInterface.edit_script(script,param.line);
