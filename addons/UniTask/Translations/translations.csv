@@ -1,9 +1,0 @@
-keys,en,zh_CN
-UniTask_Enable_AutoReload,Enable AutoReload,自动刷新
-UniTask_Tracking,Enable Tracking,记录
-UniTask_StackTrack,Enable Stack Trace,堆栈记录
-UniTask_Reload,Reload,刷新
-UniTask_TaskType,TaskType,类型
-UniTask_Elapsed,Elapsed,时长
-UniTask_Position,Position,位置
-UniTask_Clear,Clear,清空
