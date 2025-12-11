@@ -1,0 +1,90 @@
+[gd_scene load_steps=2 format=3 uid="uid://ctiaulv1slsvp"]
+
+[ext_resource type="Script" uid="uid://bp2l05fkw3fnx" path="res://addons/UniTask/Editor/UniTaskTrackerPanel.gd" id="1_ju0l8"]
+
+[node name="UniTask" type="Panel" node_paths=PackedStringArray("tree", "stack_label", "track_btn", "stack_trace_btn", "reload_btn", "auto_reload_btn", "clear_btn")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ju0l8")
+tree = NodePath("PanelContainer/VSplitContainer/Tree")
+stack_label = NodePath("PanelContainer/VSplitContainer/Stack")
+track_btn = NodePath("Menu/Tracking")
+stack_trace_btn = NodePath("Menu/StackTrack")
+reload_btn = NodePath("Menu/Reload")
+auto_reload_btn = NodePath("Menu/AutoReload")
+clear_btn = NodePath("Menu/Clear")
+
+[node name="Menu" type="HBoxContainer" parent="."]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 5.0
+offset_right = 5.0
+offset_bottom = 31.0
+grow_horizontal = 2
+
+[node name="AutoReload" type="Button" parent="Menu"]
+layout_mode = 2
+focus_mode = 0
+toggle_mode = true
+text = "UniTask_Enable_AutoReload"
+
+[node name="Tracking" type="Button" parent="Menu"]
+layout_mode = 2
+focus_mode = 0
+toggle_mode = true
+text = "UniTask_Tracking"
+
+[node name="StackTrack" type="Button" parent="Menu"]
+layout_mode = 2
+focus_mode = 0
+toggle_mode = true
+text = "UniTask_StackTrack"
+
+[node name="Reload" type="Button" parent="Menu"]
+layout_mode = 2
+focus_mode = 0
+text = "UniTask_Reload"
+
+[node name="Clear" type="Button" parent="Menu"]
+layout_mode = 2
+focus_mode = 0
+text = "UniTask_Clear"
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 30.0
+offset_bottom = -3.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VSplitContainer" type="VSplitContainer" parent="PanelContainer"]
+layout_mode = 2
+split_offset = 300
+
+[node name="Tree" type="Tree" parent="PanelContainer/VSplitContainer"]
+custom_minimum_size = Vector2(300, 80)
+layout_mode = 2
+focus_mode = 0
+columns = 3
+column_titles_visible = true
+hide_folding = true
+enable_recursive_folding = false
+hide_root = true
+select_mode = 1
+scroll_horizontal_enabled = false
+auto_tooltip = false
+
+[node name="Stack" type="RichTextLabel" parent="PanelContainer/VSplitContainer"]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+focus_mode = 2
+bbcode_enabled = true
+selection_enabled = true
