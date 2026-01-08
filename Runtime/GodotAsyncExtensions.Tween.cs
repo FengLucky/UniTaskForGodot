@@ -7,13 +7,13 @@ namespace Cysharp.Threading.Tasks;
 public static partial class GodotAsyncExtensions
 {
     /// <param name="loopCount">valid only in loop mode</param>
-    public static AsyncGodotTweenHandler GetAsyncTweenHandler(this Tween tween, CancellationToken cancellationToken,long loopCount = 1)
+    public static AsyncGodotTweenHandler GetAsyncTweenHandler(this Tween tween, CancellationToken cancellationToken = default,long loopCount = 1)
     {
         return new AsyncGodotTweenHandler(tween, cancellationToken, false,loopCount);
     }
     
     /// <param name="loopCount">valid only in loop mode</param>
-    public static UniTask WaitFinished(this Tween tween, CancellationToken cancellationToken,long loopCount = 1)
+    public static UniTask WaitFinished(this Tween tween, CancellationToken cancellationToken = default,long loopCount = 1)
     {
         return new AsyncGodotTweenHandler(tween, cancellationToken, true,loopCount).OnInvokeAsync();
     }
